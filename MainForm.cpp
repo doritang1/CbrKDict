@@ -1,11 +1,54 @@
 #include "MainForm.h"
 
-Widget::Widget(QWidget *parent)
+MainForm::MainForm(QWidget *parent)
     : QWidget(parent)
 {
+    createTitlePanel();
+    createContentPanel();
+
+    MainSplitter = new QSplitter(Qt::Vertical);
+    MainSplitter->setFrameStyle(QFrame::Panel|QFrame::Sunken);
+    MainSplitter->setLineWidth(2);
+
+    MainSplitter->addWidget(TitlePanel);
+    MainSplitter->addWidget(ContentPanel);
+
+    MainLayout = new QVBoxLayout;
+    MainLayout->addWidget(MainSplitter);
+    setLayout(MainLayout);
 }
 
-Widget::~Widget()
+MainForm::~MainForm()
 {
 
+}
+
+void MainForm::createTitlePanel()
+{
+    TitlePanel = new QWidget;
+    TitleIdLabel = new QLabel(tr("Title ID"));
+    TitleIdLineEdit = new QLineEdit();
+    TitleLabel = new QLabel(tr("Title"));
+    TitleLineEdit = new QLineEdit();
+    TitlePanelLayout = new QVBoxLayout;
+    TitlePanelLayout->addWidget(TitleIdLabel);
+    TitlePanelLayout->addWidget(TitleIdLineEdit);
+    TitlePanelLayout->addWidget(TitleLabel);
+    TitlePanelLayout->addWidget(TitleLineEdit);
+    TitlePanel->setLayout(TitlePanelLayout);
+}
+
+void MainForm::createContentPanel()
+{
+    ContentPanel = new QWidget;
+    ContentIdLabel = new QLabel(tr("Content ID"));
+    ContentIdLineEdit = new QLineEdit();
+    ContentLabel = new QLabel(tr("Content"));
+    ContentLineEdit = new QLineEdit();
+    ContentPanelLayout = new QVBoxLayout;
+    ContentPanelLayout->addWidget(ContentIdLabel);
+    ContentPanelLayout->addWidget(ContentIdLineEdit);
+    ContentPanelLayout->addWidget(ContentLabel);
+    ContentPanelLayout->addWidget(ContentLineEdit);
+    ContentPanel->setLayout(ContentPanelLayout);
 }
