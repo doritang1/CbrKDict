@@ -8,13 +8,12 @@ MainForm::MainForm(QWidget *parent)
 
     MainSplitter = new QSplitter(Qt::Vertical);
     MainSplitter->setFrameStyle(QFrame::Panel|QFrame::Sunken);
-    MainSplitter->setLineWidth(2);
 
     MainSplitter->addWidget(TitlePanel);
     MainSplitter->addWidget(ContentPanel);
-
     MainLayout = new QVBoxLayout;
     MainLayout->addWidget(MainSplitter);
+
     setLayout(MainLayout);
 }
 
@@ -25,11 +24,14 @@ MainForm::~MainForm()
 
 void MainForm::createTitlePanel()
 {
-    TitlePanel = new QWidget;
+    TitlePanel = new QFrame;
+    TitlePanel->setFrameStyle(QFrame::Panel|QFrame::Sunken);
+
     TitleIdLabel = new QLabel(tr("Title ID"));
     TitleIdLineEdit = new QLineEdit();
     TitleLabel = new QLabel(tr("Title"));
     TitleLineEdit = new QLineEdit();
+
     TitlePanelLayout = new QVBoxLayout;
     TitlePanelLayout->addWidget(TitleIdLabel);
     TitlePanelLayout->addWidget(TitleIdLineEdit);
@@ -40,7 +42,8 @@ void MainForm::createTitlePanel()
 
 void MainForm::createContentPanel()
 {
-    ContentPanel = new QWidget;
+    ContentPanel = new QFrame;
+    ContentPanel->setFrameStyle(QFrame::Panel|QFrame::Sunken);
     ContentIdLabel = new QLabel(tr("Content ID"));
     ContentIdLineEdit = new QLineEdit();
     ContentLabel = new QLabel(tr("Content"));

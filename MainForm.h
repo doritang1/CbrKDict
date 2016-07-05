@@ -6,6 +6,7 @@
 #include <QLabel>
 #include <QLineEdit>
 #include <QSplitter>
+#include <QSplitterHandle>
 
 class MainForm : public QWidget
 {
@@ -19,14 +20,14 @@ private:
     void createTitlePanel();
     void createContentPanel();
 
-    QWidget *TitlePanel;
+    QFrame *TitlePanel;
     QVBoxLayout *TitlePanelLayout;
     QLabel *TitleIdLabel;
     QLineEdit *TitleIdLineEdit;
     QLabel *TitleLabel;
     QLineEdit *TitleLineEdit;
 
-    QWidget *ContentPanel;
+    QFrame *ContentPanel;
     QVBoxLayout *ContentPanelLayout;
     QLabel *ContentIdLabel;
     QLineEdit *ContentIdLineEdit;
@@ -34,6 +35,7 @@ private:
     QLineEdit *ContentLineEdit;
 
     QSplitter *MainSplitter;
+    QSplitterHandle *handle;
     QVBoxLayout *MainLayout;
 };
 
