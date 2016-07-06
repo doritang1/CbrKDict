@@ -15,6 +15,7 @@ MainForm::MainForm(QWidget *parent)
     //스플리터에 패널들을 붙인다.
     mainSplitter->addWidget(titlePanel);
     mainSplitter->addWidget(contentPanel);
+    mainSplitter->setStretchFactor(1,1);//스플리터 내부의 인덱스가 1(두번째)인 컨트롤만 늘어남
 
     //레이아웃을 생성하여 스플리터를 붙인다.
     mainLayout = new QVBoxLayout;
@@ -37,40 +38,31 @@ void MainForm::createTitlePanel()
 
     /*프레임 안에 나타낼 각종 요소를 생성한다.*/
 
-    //타이틀번호를 나타낼 요소를 생성해서 레이아웃에 붙임
+    //타이틀번호를 나타낼 요소를 생성
     titleidLabel = new QLabel(tr("Title ID"));
+    titleidLabel->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
     titleidLineEdit = new QLineEdit;
-    titleidLayout = new QHBoxLayout;
-    titleidLayout->addWidget(titleidLabel);
-    titleidLayout->addWidget(titleidLineEdit);
+    titleidLineEdit->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Maximum);
 
-    //타이틀을 나타낼 요소를 생성해서 레이아웃에 붙임
+    //타이틀을 나타낼 요소를 생성
     titleLabel = new QLabel(tr("Title"));
     titleLineEdit = new QLineEdit;
-    titleLayout = new QHBoxLayout;
-    titleLayout->addWidget(titleLabel);
-    titleLayout->addWidget(titleLineEdit);
 
     //데이터를 표시할 리스트뷰를 생성
     titleListView = new QListView;
+    //titleListView->setSizePolicy(QSizePolicy::Minimum,QSizePolicy::Minimum);
 
 
 
 
 
-
-
-
-    //레이아웃들을 모음
-    viewVBoxLayout = new QVBoxLayout;
-    viewVBoxLayout->addLayout(titleidLayout);
-    viewVBoxLayout->addLayout(titleLayout);
-
-    //title데이터를 나타낼 패널을 생성
-    titleViewPanel = new QFrame;
-    titleViewPanel->setFrameStyle(QFrame::StyledPanel);
-    titleViewPanel->setLayout(viewVBoxLayout);
-    titleViewPanel->setSizePolicy(QSizePolicy::Expanding,QSizePolicy::Maximum);
+    //그리드 레이아웃 생성후 컨트롤들 추가
+    titleGridLayout = new QGridLayout;
+    titleGridLayout->addWidget(titleidLabel,0,0);
+    titleGridLayout->addWidget(titleidLineEdit,0,1);
+    titleGridLayout->addWidget(titleLabel,1,0);
+    titleGridLayout->addWidget(titleLineEdit,1,1,1,2);
+    titleGridLayout->addWidget(titleListView,2,0,6,3);
 
     //조작버튼부를 생성
     insertTitleButton = new QPushButton(tr("Insert"));
@@ -92,9 +84,8 @@ void MainForm::createTitlePanel()
 
     //생성된 요소를 레이아웃에 담는다.
     titlePanelLayout = new QVBoxLayout;
-    titlePanelLayout->addWidget(titleViewPanel);
-    titleSpacer = new QSpacerItem(1,300);
-    titlePanelLayout->addSpacerItem(titleSpacer);
+    titlePanelLayout->addLayout(titleGridLayout);
+//    titlePanelLayout->addStretch();//스페이서를 추가
     titlePanelLayout->addWidget(titleDialogButtonBox);
 
     //레이아웃을 프레임에 붙인다.
@@ -110,15 +101,16 @@ void MainForm::createContentPanel()
 
     //프레임 안에 나타낼 각종 요소를 생성한다.
     contentidLabel = new QLabel(tr("Content ID"));
+    contentidLabel->setSizePolicy(QSizePolicy::Fixed,QSizePolicy::Fixed);
     contentidLineEdit = new QLineEdit();
+    contentidLineEdit->setSizePolicy(QSizePolicy::Fixed,QSizePolicy::Fixed);
     contentidLayout = new QHBoxLayout;
     contentidLayout->addWidget(contentidLabel);
     contentidLayout->addWidget(contentidLineEdit);
+
     contentTextEdit = new QTextEdit();
     contentTextEdit->setMinimumHeight(300);
     contentTextEdit->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
-    contentLayout = new QHBoxLayout;
-    contentLayout->addWidget(contentTextEdit);
 
     insertContentButton = new QPushButton(tr("Insert"));
     addContentButton = new QPushButton(tr("Add"));
@@ -139,10 +131,9 @@ void MainForm::createContentPanel()
     //생성된 요소를 레이아웃에 담는다.
     contentPanelLayout = new QVBoxLayout;
     contentPanelLayout->addLayout(contentidLayout);
-    contentPanelLayout->addLayout(contentLayout);
-    contentSpacer = new QSpacerItem(1,1);
-    contentPanelLayout->addSpacerItem(contentSpacer);
+    contentPanelLayout->addWidget(contentTextEdit);
     contentPanelLayout->addWidget(contentDialogButtonBox);
+    contentPanelLayout->setAlignment(contentidLayout,Qt::AlignLeft);
 
     //레이아웃을 프레임에 붙인다.
     contentPanel->setLayout(contentPanelLayout);

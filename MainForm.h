@@ -34,26 +34,20 @@ private:
     void createContentPanel();
 
     QFrame *titlePanel;
-    QFrame *titleViewPanel;
-    QHBoxLayout *titleidLayout;
-    QHBoxLayout *titleLayout;
-    QVBoxLayout *viewVBoxLayout;
     QVBoxLayout *titlePanelLayout;
+    QGridLayout *titleGridLayout;
     QLabel *titleidLabel;
     QLineEdit *titleidLineEdit;
     QLabel *titleLabel;
     QLineEdit *titleLineEdit;
     QListView *titleListView;
-    QSpacerItem *titleSpacer;
 
     QFrame *contentPanel;
-    QHBoxLayout *contentidLayout;
-    QHBoxLayout *contentLayout;
     QVBoxLayout *contentPanelLayout;
+    QHBoxLayout *contentidLayout;
     QLabel *contentidLabel;
     QLineEdit *contentidLineEdit;
     QTextEdit *contentTextEdit;
-    QSpacerItem *contentSpacer;
 
     QSplitter *mainSplitter;
 
