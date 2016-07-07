@@ -2,6 +2,7 @@
 #define MAINFORM_H
 
 #include <QWidget>
+#include "ckdbengine.h" //DB 관리를 위한 엔진을 include한다.
 #include <QVBoxLayout>
 #include <QLabel>
 #include <QLineEdit>
@@ -20,6 +21,8 @@ public:
     ~MainForm();
 
 private slots:
+    void updateCategoryLevel2ListView();
+    void updateCategoryLevel3ListView();
     //    void insertTitle();
     //    void addTitle();
     //    void deleteTitle();
@@ -30,32 +33,37 @@ private slots:
     //    void deleteTitle();
     //    void confirmTitle();
 private:
-    void createTitlePanel();
+    void createCategoryPanel();
     void createContentPanel();
 
-    QFrame *titlePanel;
-    QVBoxLayout *titlePanelLayout;
-    QGridLayout *titleGridLayout;
+    CKDBEngine *sqlDb;
+
+    QFrame *categoryPanel;
+    QVBoxLayout *categoryPanelLayout;
+    QGridLayout *categoryGridLayout;
+    QLabel *categoryLevel1Label;
+    QListView *categoryLevel1ListView;
+    QLabel *categoryLevel2Label;
+    QListView *categoryLevel2ListView;
+    QLabel *categoryLevel3Label;
+    QListView *categoryLevel3ListView;
+
+    QFrame *contentPanel;
+    QVBoxLayout *contentPanelLayout;
     QLabel *titleidLabel;
     QLineEdit *titleidLineEdit;
     QLabel *titleLabel;
     QLineEdit *titleLineEdit;
-    QListView *titleListView;
-
-    QFrame *contentPanel;
-    QVBoxLayout *contentPanelLayout;
-    QHBoxLayout *contentidLayout;
-    QLabel *contentidLabel;
-    QLineEdit *contentidLineEdit;
-    QTextEdit *contentTextEdit;
+    QPushButton *titleSearchPushButton;
+    QTextEdit *bodyTextEdit;
 
     QSplitter *mainSplitter;
 
-    QPushButton *insertTitleButton;
-    QPushButton *addTitleButton;
-    QPushButton *deleteTitleButton;
-    QPushButton *confirmTitleButton;
-    QDialogButtonBox *titleDialogButtonBox;
+    QPushButton *insertCategoryButton;
+    QPushButton *addCategoryButton;
+    QPushButton *deleteCategoryButton;
+    QPushButton *confirmCategoryButton;
+    QDialogButtonBox *categoryDialogButtonBox;
 
     QPushButton *insertContentButton;
     QPushButton *addContentButton;
