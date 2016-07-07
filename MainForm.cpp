@@ -15,8 +15,9 @@ MainForm::MainForm(QWidget *parent)
     //스플리터에 패널들을 붙인다.
     mainSplitter->addWidget(titlePanel);
     mainSplitter->addWidget(contentPanel);
-    mainSplitter->setStretchFactor(1,1);//스플리터 내부의 인덱스가 1(두번째)인 컨트롤만 늘어남
-
+    //스플리터 내부의 인덱스가 1(두번째)인 컨트롤만 늘어남
+    //두번째 인자는 다른 인덱스(예를 들어 첫번째)의 컨트롤 대비 늘어나는 비율, 0이면 안늘어남
+    mainSplitter->setStretchFactor(1,1);
     //레이아웃을 생성하여 스플리터를 붙인다.
     mainLayout = new QVBoxLayout;
     mainLayout->addWidget(mainSplitter);
