@@ -6,6 +6,7 @@
 
 #include <QtSql>
 #include <QSqlTableModel>
+#include <QDataWidgetMapper>
 
 class CKDBEngine
 {
@@ -22,6 +23,9 @@ public:
     QSqlTableModel *modelCategoryLevel1;
     QSqlTableModel *modelCategoryLevel2;
     QSqlTableModel *modelCategoryLevel3;
+
+    QSqlTableModel *modelContent;
+    QDataWidgetMapper *mapperContent;
 
 private:
     //DB객체

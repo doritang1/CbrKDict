@@ -3,6 +3,7 @@
 MainForm::MainForm(QWidget *parent)
     : QWidget(parent)
 {
+    this->setFocus(); //default 포커스를 옮기지 않으면 생성 즉시 첫번째 ListView에 포커스가 가서 선택되고, 연이어 두번째 ListView에 데이터가 표시됨
     sqlDb = new CKDBEngine();
     sqlDb->connectDb("QSQLITE", "Book_Summary.sqlite");
 
@@ -12,22 +13,22 @@ MainForm::MainForm(QWidget *parent)
 
     ///메인레이아웃 생성
     {
-    //스플리터를 생성한다.
-    mainSplitter = new QSplitter(Qt::Horizontal);
-    mainSplitter->setFrameStyle(QFrame::Panel|QFrame::Sunken);
-    mainSplitter->setChildrenCollapsible(false); //스플리터 내부의 요소들이 사라지지 않도록 최소크기를 유지함
+        //스플리터를 생성한다.
+        mainSplitter = new QSplitter(Qt::Horizontal);
+        mainSplitter->setFrameStyle(QFrame::Panel|QFrame::Sunken);
+        mainSplitter->setChildrenCollapsible(false); //스플리터 내부의 요소들이 사라지지 않도록 최소크기를 유지함
 
-    //스플리터에 패널들을 붙인다.
-    mainSplitter->addWidget(categoryPanel);
-    mainSplitter->addWidget(contentPanel);
-    //스플리터 내부의 인덱스가 1(두번째)인 컨트롤만 늘어남
-    //두번째 인자는 다른 인덱스(예를 들어 첫번째)의 컨트롤 대비 늘어나는 비율, 0이면 안늘어남
-    mainSplitter->setStretchFactor(1,1);
-    //레이아웃을 생성하여 스플리터를 붙인다.
-    mainLayout = new QVBoxLayout;
-    mainLayout->addWidget(mainSplitter);
+        //스플리터에 패널들을 붙인다.
+        mainSplitter->addWidget(categoryPanel);
+        mainSplitter->addWidget(contentPanel);
+        //스플리터 내부의 인덱스가 1(두번째)인 컨트롤만 늘어남
+        //두번째 인자는 다른 인덱스(예를 들어 첫번째)의 컨트롤 대비 늘어나는 비율, 0이면 안늘어남
+        mainSplitter->setStretchFactor(1,1);
+        //레이아웃을 생성하여 스플리터를 붙인다.
+        mainLayout = new QVBoxLayout;
+        mainLayout->addWidget(mainSplitter);
 
-    setLayout(mainLayout);
+        setLayout(mainLayout);
     }
 }
 
@@ -57,6 +58,9 @@ void MainForm::createCategoryPanel()
     connect(categoryLevel1ListView->selectionModel(),
             SIGNAL(currentRowChanged(const QModelIndex &, const QModelIndex &)),
             this, SLOT(updateCategoryLevel3ListView()));
+    connect(categoryLevel1ListView->selectionModel(),
+            SIGNAL(currentRowChanged(const QModelIndex &, const QModelIndex &)),
+            this, SLOT(updateContentPanel()));
     categoryLevel2Label = new QLabel(tr("Secondary Category"));
     categoryLevel2ListView = new QListView;
     categoryLevel2ListView->setModel(sqlDb->modelCategoryLevel2);
@@ -64,10 +68,16 @@ void MainForm::createCategoryPanel()
     connect(categoryLevel2ListView->selectionModel(),
             SIGNAL(currentRowChanged(const QModelIndex &, const QModelIndex &)),
             this, SLOT(updateCategoryLevel3ListView()));
+    connect(categoryLevel2ListView->selectionModel(),
+            SIGNAL(currentRowChanged(const QModelIndex &, const QModelIndex &)),
+            this, SLOT(updateContentPanel()));
     categoryLevel3Label = new QLabel(tr("Tertiary Category"));
     categoryLevel3ListView = new QListView;
     categoryLevel3ListView->setModel(sqlDb->modelCategoryLevel3);
     categoryLevel3ListView->setModelColumn(3);
+    connect(categoryLevel3ListView->selectionModel(),
+            SIGNAL(currentRowChanged(const QModelIndex &, const QModelIndex &)),
+            this, SLOT(updateContentPanel()));
 
     //그리드 레이아웃 생성후 컨트롤들 추가
     categoryGridLayout = new QGridLayout;
@@ -91,10 +101,11 @@ void MainForm::createCategoryPanel()
     categoryDialogButtonBox->addButton(deleteCategoryButton, QDialogButtonBox::ActionRole);
     categoryDialogButtonBox->addButton(confirmCategoryButton, QDialogButtonBox::ActionRole);
 
-//    connect(insertTitleButton, SIGNAL(clicked()), this, SLOT(insertTitle()));
-//    connect(addTitleButton, SIGNAL(clicked()), this, SLOT(addTitle()));
-//    connect(deleteTitleButton, SIGNAL(clicked()), this, SLOT(deleteTitle()));
-//    connect(confirmTitleButton, SIGNAL(clicked()), this, SLOT(confirmTitle()));
+    //조작버튼을 슬롯함수와 연결
+    connect(insertCategoryButton, SIGNAL(clicked()), this, SLOT(insertCategory()));
+    connect(addCategoryButton, SIGNAL(clicked()), this, SLOT(addCategory()));
+    connect(deleteCategoryButton, SIGNAL(clicked()), this, SLOT(deleteCategory()));
+    connect(confirmCategoryButton, SIGNAL(clicked()), this, SLOT(confirmCategory()));
 
     //생성된 요소를 레이아웃에 담는다.
     categoryPanelLayout = new QVBoxLayout;
@@ -114,18 +125,20 @@ void MainForm::createContentPanel()
 
     /*프레임 안에 나타낼 각종 요소를 생성한다.*/
 
-    //타이틀번호를 나타낼 요소를 생성
-    titleidLabel = new QLabel(tr("Title ID"));
-    titleidLabel->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
-    titleidLineEdit = new QLineEdit;
-    titleidLineEdit->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Maximum);
-
     //타이틀을 나타낼 요소를 생성
     titleLabel = new QLabel(tr("Title"));
     titleLabel->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
+    titleLabel->setContentsMargins(0,5,0,0); // 이 값을 안주면 라벨의 텍스트가 약간 위쪽에 있게 됨
     titleLineEdit = new QLineEdit;
     titleSearchPushButton = new QPushButton(tr("&Find"));
     titleSearchPushButton->setSizePolicy(QSizePolicy::Maximum,QSizePolicy::Maximum);
+
+    titleFormLayout = new QFormLayout;
+    titleFormLayout->addRow(titleLabel,titleLineEdit);
+
+    titleHBoxLayout = new QHBoxLayout;
+    titleHBoxLayout->addLayout(titleFormLayout);
+    titleHBoxLayout->addWidget(titleSearchPushButton);
 
     bodyTextEdit = new QTextEdit();
     bodyTextEdit->setMinimumHeight(300);
@@ -142,23 +155,27 @@ void MainForm::createContentPanel()
     contentDialogButtonBox->addButton(deleteContentButton, QDialogButtonBox::ActionRole);
     contentDialogButtonBox->addButton(confirmContentButton, QDialogButtonBox::ActionRole);
 
-//    connect(insertContentButton, SIGNAL(clicked()), this, SLOT(insertContent()));
-//    connect(addContentButton, SIGNAL(clicked()), this, SLOT(addContent()));
-//    connect(deleteContentButton, SIGNAL(clicked()), this, SLOT(deleteContent()));
-//    connect(confirmContentButton, SIGNAL(clicked()), this, SLOT(confirmContent()));
+    //조작버튼을 슬롯함수와 연결
+    connect(insertContentButton, SIGNAL(clicked()), this, SLOT(insertContent()));
+    connect(addContentButton, SIGNAL(clicked()), this, SLOT(addContent()));
+    connect(deleteContentButton, SIGNAL(clicked()), this, SLOT(deleteContent()));
+    connect(confirmContentButton, SIGNAL(clicked()), this, SLOT(confirmContent()));
 
     //생성된 요소를 레이아웃에 담는다.
     contentPanelLayout = new QVBoxLayout;
-    contentPanelLayout->addWidget(titleidLineEdit);
-    contentPanelLayout->addWidget(titleLineEdit);
+    contentPanelLayout->addLayout(titleHBoxLayout);
     contentPanelLayout->addWidget(bodyTextEdit);
     contentPanelLayout->addWidget(contentDialogButtonBox);
-    //contentPanelLayout->setAlignment(contentidLayout,Qt::AlignLeft);
 
     //레이아웃을 프레임에 붙인다.
     contentPanel->setLayout(contentPanelLayout);
+
+    //생성된 요소에 데이터를 연결함
+    sqlDb->mapperContent->addMapping(titleLineEdit, 4);
+    sqlDb->mapperContent->addMapping(bodyTextEdit, 5);
 }
 
+//첫번째 Category 선택에 따라 두번째 Category 변경
 void MainForm::updateCategoryLevel2ListView()
 {
     QModelIndex index = categoryLevel1ListView->currentIndex();
@@ -172,6 +189,7 @@ void MainForm::updateCategoryLevel2ListView()
     sqlDb->modelCategoryLevel2->select();
 }
 
+//첫번째 또는 두번째 Category 선택에 따라 세번째 Category 변경
 void MainForm::updateCategoryLevel3ListView()
 {
     QModelIndex index = categoryLevel2ListView->currentIndex();
@@ -183,4 +201,76 @@ void MainForm::updateCategoryLevel3ListView()
         sqlDb->modelCategoryLevel3->setFilter("idLevel2 = -1");
     }
     sqlDb->modelCategoryLevel3->select();
+}
+
+//첫번째, 두번째 및 세번째 Category 선택에 따라 Content 패널 변경
+void MainForm::updateContentPanel()
+{
+    titleLineEdit->clear();
+    bodyTextEdit->clear();
+
+    int id;
+    QModelIndex index = categoryLevel3ListView->currentIndex();
+    if(index.isValid()){
+        QSqlRecord recordCategory = sqlDb->modelCategoryLevel3->record(index.row());
+        id = recordCategory.value("idLevel3").toInt();
+        sqlDb->modelContent->setFilter(QString("colCategoryLevel3 = %1").arg(id));
+    }else{
+        sqlDb->modelContent->setFilter("colCategoryLevel3 = -1");
+
+    }
+    sqlDb->modelContent->select();
+
+    //데이터가 다수 개일 수가 있으므로 for문을 돌려서 첫번째 데이터를 표시
+    for (int row = 0; row < sqlDb->modelContent->rowCount(); ++row) {
+        QSqlRecord recordContent = sqlDb->modelContent->record(row);
+        if (recordContent.value(3).toInt() == id) {
+            sqlDb->mapperContent->setCurrentIndex(row);
+            break;
+        }
+    }
+}
+
+//Category 데이터 조작 함수들
+void MainForm::insertCategory()
+{
+    int row = categoryLevel3ListView->selectionModel()->currentIndex().row();
+    sqlDb->modelCategoryLevel3->insertRow(row);
+    QModelIndex index = sqlDb->modelCategoryLevel3->index(row, 3);
+    categoryLevel3ListView->setCurrentIndex(index);
+    categoryLevel3ListView->edit(index);
+}
+void MainForm::addCategory()
+{
+    int row = sqlDb->modelCategoryLevel3->rowCount();
+    sqlDb->modelCategoryLevel3->insertRow(row);
+    QModelIndex index = sqlDb->modelCategoryLevel3->index(row, 3);
+    categoryLevel3ListView->setCurrentIndex(index);
+    categoryLevel3ListView->edit(index);
+}
+void MainForm::deleteCategory()
+{
+
+}
+void MainForm::confirmCategory()
+{
+
+}
+
+//Content 데이터 조작 함수들
+void MainForm::insertContent()
+{
+
+}
+void MainForm::addContent()
+{
+
+}
+void MainForm::deleteContent()
+{
+
+}
+void MainForm::confirmContent()
+{
+
 }

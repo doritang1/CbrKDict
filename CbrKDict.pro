@@ -13,6 +13,7 @@ TEMPLATE = app
 
 
 SOURCES += main.cpp\
-        MainForm.cpp
-
-HEADERS  += MainForm.h
+        MainForm.cpp\
+        ckdbengine.cpp
+HEADERS  += MainForm.h\
+        ckdbengine.h

@@ -15,18 +15,28 @@ bool CKDBEngine::connectDb(const QString &dbType, const QString &fileName)
         return false;
     }
 
-     modelCategoryLevel1 = new QSqlTableModel();
-     modelCategoryLevel1->setTable("tblCategoryLevel1");
-     modelCategoryLevel1->setSort(1,Qt::AscendingOrder);
-     modelCategoryLevel1->select();//첫번째 리스트뷰만 채운다.
+    //모델 및 매퍼 생성
+    {
+         modelCategoryLevel1 = new QSqlTableModel();
+         modelCategoryLevel1->setTable("tblCategoryLevel1");
+         modelCategoryLevel1->setSort(1,Qt::AscendingOrder);
+         modelCategoryLevel1->select();
 
-     modelCategoryLevel2 = new QSqlTableModel();
-     modelCategoryLevel2->setTable("tblCategoryLevel2");
-     modelCategoryLevel2->setSort(1,Qt::AscendingOrder);
+         modelCategoryLevel2 = new QSqlTableModel();
+         modelCategoryLevel2->setTable("tblCategoryLevel2");
+         modelCategoryLevel2->setSort(1,Qt::AscendingOrder);
 
-     modelCategoryLevel3 = new QSqlTableModel();
-     modelCategoryLevel3->setTable("tblCategoryLevel3");
-     modelCategoryLevel3->setSort(1,Qt::AscendingOrder);
+         modelCategoryLevel3 = new QSqlTableModel();
+         modelCategoryLevel3->setTable("tblCategoryLevel3");
+         modelCategoryLevel3->setSort(1,Qt::AscendingOrder);
 
+         modelContent = new QSqlTableModel();
+         modelContent->setTable("tblContent");
+        // modelContent->setSort(4,Qt::AscendingOrder); //colTitle을 기준으로 정렬
+
+         mapperContent = new QDataWidgetMapper;
+         mapperContent->setSubmitPolicy(QDataWidgetMapper::AutoSubmit);
+         mapperContent->setModel(modelContent);
+    }
      return true;
 }
