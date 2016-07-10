@@ -32,10 +32,12 @@ bool CKDBEngine::connectDb(const QString &dbType, const QString &fileName)
 
          modelContent = new QSqlTableModel();
          modelContent->setTable("tblContent");
+         modelContent->setHeaderData(2, Qt::Horizontal, "Title");
+         modelContent->setHeaderData(3, Qt::Horizontal, "Body");
         // modelContent->setSort(4,Qt::AscendingOrder); //colTitle을 기준으로 정렬
 
          mapperContent = new QDataWidgetMapper;
-         mapperContent->setSubmitPolicy(QDataWidgetMapper::AutoSubmit);
+         mapperContent->setSubmitPolicy(QDataWidgetMapper::ManualSubmit);
          mapperContent->setModel(modelContent);
     }
      return true;

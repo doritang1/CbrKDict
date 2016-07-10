@@ -7,8 +7,9 @@
 #include <QFormLayout>
 #include <QLabel>
 #include <QLineEdit>
-#include <QTextEdit>
+#include <QPlainTextEdit>
 #include <QListView>
+#include <QTableView>
 #include <QSplitter>
 #include <QPushButton>
 #include <QDialogButtonBox>
@@ -27,6 +28,8 @@ private slots:
     void updateCategoryLevel3ListView();
     void updateContentPanel();
 
+    //포커스를 주고 받은 컨트롤을 처리하는 함수(어떤 위젯에 대해서 삽입,삭제 등을 처리할 것인지 판단)
+    void focusChanged(QWidget *from, QWidget *to);
 
     //데이터 조작용 함수(Category 패널)
     void insertCategory();
@@ -35,15 +38,18 @@ private slots:
     void confirmCategory();
 
     //데이터 조작용 함수(Content 패널)
-    void insertContent();
     void addContent();
     void deleteContent();
     void confirmContent();
+    void currentContent();
 
 private:
     //화면 구성요소 생성 함수
     void createCategoryPanel();
     void createContentPanel();
+
+    //현재 포커스를 받은 컨트롤의 색인을 저장하는 변수
+    int focusedWidget;
 
     //데이터베이스 엔진 선언
     CKDBEngine *sqlDb;
@@ -75,10 +81,10 @@ private:
                     QLabel *titleLabel;
                     QLineEdit *titleLineEdit;
                 QPushButton *titleSearchPushButton;
-            QTextEdit *bodyTextEdit;
+            QPlainTextEdit *bodyTextEdit;
+            QTableView *contentTableView;
             //조작버튼들(Content 패널용)
             QDialogButtonBox *contentDialogButtonBox;
-                QPushButton *insertContentButton;
                 QPushButton *addContentButton;
                 QPushButton *deleteContentButton;
                 QPushButton *confirmContentButton;
