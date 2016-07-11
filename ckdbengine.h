@@ -16,7 +16,7 @@ public:
 
     //DB 연결함. DB파일의 이름과 DB타입을 문자열 참조자로 받는다.
     //dbType의 기본값은 QSQLITE이고,
-    //fileName의 기본값은 ":memory:"이다.
+    //fileName의 기본값은 ":memory:"(인메모리DB)이다.
     bool connectDb(const QString &dbType = "QSQLITE", const QString &fileName = ":memory:");
 
     //title 테이블의 데이터를 제공하는 모델

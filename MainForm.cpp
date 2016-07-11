@@ -169,16 +169,19 @@ void MainForm::createContentPanel()
     addContentButton = new QPushButton(tr("Add"));
     deleteContentButton = new QPushButton(tr("Delete"));
     confirmContentButton = new QPushButton(tr("Confirm"));
+    printReportButton = new QPushButton(tr("Print"));
 
     contentDialogButtonBox = new QDialogButtonBox;
     contentDialogButtonBox->addButton(addContentButton, QDialogButtonBox::ActionRole);
     contentDialogButtonBox->addButton(deleteContentButton, QDialogButtonBox::ActionRole);
     contentDialogButtonBox->addButton(confirmContentButton, QDialogButtonBox::ActionRole);
+    contentDialogButtonBox->addButton(printReportButton, QDialogButtonBox::ActionRole);
 
     //조작버튼을 슬롯함수와 연결
     connect(addContentButton, SIGNAL(clicked()), this, SLOT(addContent()));
     connect(deleteContentButton, SIGNAL(clicked()), this, SLOT(deleteContent()));
     connect(confirmContentButton, SIGNAL(clicked()), this, SLOT(confirmContent()));
+    connect(printReportButton,SIGNAL(clicked()), this, SLOT(printReport()));
 
     //생성된 요소를 레이아웃에 담는다.
     contentPanelLayout = new QVBoxLayout;
@@ -472,7 +475,6 @@ void MainForm::confirmContent()
         idLevel3 = recordCategory.value("idLevel3").toInt();
     }
 
-    //int row = sqlDb->mapperContent->currentIndex();
     int row = sqlDb->modelContent->rowCount();
     sqlDb->modelContent->insertRow(row);
     QModelIndex idxCategoryId = sqlDb->modelContent->index(row,1);
@@ -491,4 +493,21 @@ void MainForm::confirmContent()
 void MainForm::currentContent(){
     int row = contentTableView->currentIndex().row();
     sqlDb->mapperContent->setCurrentIndex(row);
+}
+void MainForm::printReport()
+{
+    QString fileName = "printContentRpt.xml";
+    reportDocument = new QtRPT;
+    reportDocument->loadReport(fileName);
+    reportDocument->recordCount.append(sqlDb->modelContent->rowCount());
+    QObject::connect(reportDocument, SIGNAL(setValue(const int, const QString, QVariant&, const int)),
+                     this, SLOT(setValue(const int, const QString, QVariant&, const int)));
+    reportDocument->printExec();
+}
+void MainForm::setValue(const int recNo, const QString paramName, QVariant &paramValue, const int reportPage) {
+    Q_UNUSED(reportPage);
+    if (paramName == "title")
+        paramValue = sqlDb->modelContent->record(recNo).value("colTitle").toString();
+    if (paramName == "body")
+        paramValue = sqlDb->modelContent->record(recNo).value("colBody").toString();
 }

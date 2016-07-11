@@ -13,6 +13,7 @@
 #include <QSplitter>
 #include <QPushButton>
 #include <QDialogButtonBox>
+#include "qtrpt.h"
 
 class MainForm : public QWidget
 {
@@ -42,6 +43,8 @@ private slots:
     void deleteContent();
     void confirmContent();
     void currentContent();
+    void printReport();
+    void setValue(const int recNo, const QString paramName, QVariant &paramValue, const int reportPage);
 
 private:
     //화면 구성요소 생성 함수
@@ -88,6 +91,7 @@ private:
                 QPushButton *addContentButton;
                 QPushButton *deleteContentButton;
                 QPushButton *confirmContentButton;
+                QPushButton *printReportButton;
 
 
     //전체 레이아웃을 잡아줄 스플리터
@@ -95,6 +99,9 @@ private:
 
     //향후 추가작업을 대비해 스플리터를 다시 감쌌음
     QVBoxLayout *mainLayout;
+
+    //인쇄관련
+    QtRPT *reportDocument;
 };
 
 #endif // MAINFORM_H
