@@ -13,6 +13,7 @@
 #include <QSplitter>
 #include <QPushButton>
 #include <QDialogButtonBox>
+#include <QPrintPreviewDialog>
 #include "qtrpt.h"
 
 class MainForm : public QWidget
@@ -43,7 +44,10 @@ private slots:
     void deleteContent();
     void confirmContent();
     void currentContent();
-    void printReport();
+    void printBody(); //현재 내용을 출력
+    void slotPrint(QPrinter *);//printBody()에서 다시 호출
+    void printReport(); //리포트 생성
+    //리포트에 데이터 연결
     void setValue(const int recNo, const QString paramName, QVariant &paramValue, const int reportPage);
 
 private:
@@ -91,6 +95,7 @@ private:
                 QPushButton *addContentButton;
                 QPushButton *deleteContentButton;
                 QPushButton *confirmContentButton;
+                QPushButton *printBodyButton;
                 QPushButton *printReportButton;
 
 
@@ -102,6 +107,10 @@ private:
 
     //인쇄관련
     QtRPT *reportDocument;
+
+    //기타
+    QPrinter *prntDevice;
+    QPrintPreviewDialog *prntPreviewDialog;
 };
 
 #endif // MAINFORM_H

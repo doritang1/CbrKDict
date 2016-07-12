@@ -169,18 +169,21 @@ void MainForm::createContentPanel()
     addContentButton = new QPushButton(tr("Add"));
     deleteContentButton = new QPushButton(tr("Delete"));
     confirmContentButton = new QPushButton(tr("Confirm"));
-    printReportButton = new QPushButton(tr("Print"));
+    printBodyButton = new QPushButton(tr("Print"));
+    printReportButton = new QPushButton(tr("Report"));
 
     contentDialogButtonBox = new QDialogButtonBox;
     contentDialogButtonBox->addButton(addContentButton, QDialogButtonBox::ActionRole);
     contentDialogButtonBox->addButton(deleteContentButton, QDialogButtonBox::ActionRole);
     contentDialogButtonBox->addButton(confirmContentButton, QDialogButtonBox::ActionRole);
+    contentDialogButtonBox->addButton(printBodyButton,QDialogButtonBox::ActionRole);
     contentDialogButtonBox->addButton(printReportButton, QDialogButtonBox::ActionRole);
 
     //조작버튼을 슬롯함수와 연결
     connect(addContentButton, SIGNAL(clicked()), this, SLOT(addContent()));
     connect(deleteContentButton, SIGNAL(clicked()), this, SLOT(deleteContent()));
     connect(confirmContentButton, SIGNAL(clicked()), this, SLOT(confirmContent()));
+    connect(printBodyButton,SIGNAL(clicked()), this, SLOT(printBody()));
     connect(printReportButton,SIGNAL(clicked()), this, SLOT(printReport()));
 
     //생성된 요소를 레이아웃에 담는다.
@@ -454,6 +457,10 @@ void MainForm::addContent()
 {
     sqlDb->mapperContent->submit();//만약 현재 Content를 편집중에 Add버튼을 눌렀다면 입력중이었던 데이터는 저장해야 함
 
+    int row = sqlDb->modelContent->rowCount();
+    sqlDb->modelContent->insertRow(row);
+    sqlDb->mapperContent->setCurrentIndex(row);
+
     titleLineEdit->clear();
     bodyTextEdit->clear();
     titleLineEdit->setFocus();
@@ -475,8 +482,7 @@ void MainForm::confirmContent()
         idLevel3 = recordCategory.value("idLevel3").toInt();
     }
 
-    int row = sqlDb->modelContent->rowCount();
-    sqlDb->modelContent->insertRow(row);
+    int row = sqlDb->mapperContent->currentIndex();
     QModelIndex idxCategoryId = sqlDb->modelContent->index(row,1);
     QModelIndex idxTitle = sqlDb->modelContent->index(row,2);
     QModelIndex idxBody = sqlDb->modelContent->index(row,3);
@@ -493,6 +499,25 @@ void MainForm::confirmContent()
 void MainForm::currentContent(){
     int row = contentTableView->currentIndex().row();
     sqlDb->mapperContent->setCurrentIndex(row);
+}
+void MainForm::printBody()
+{
+    prntDevice = new QPrinter();
+    prntPreviewDialog = new QPrintPreviewDialog(prntDevice, this);
+    prntPreviewDialog->setWindowState(Qt::WindowMaximized);
+    connect(prntPreviewDialog, SIGNAL(paintRequested(QPrinter*)), SLOT(slotPrint(QPrinter *)));
+    prntPreviewDialog->exec();
+}
+void MainForm::slotPrint(QPrinter *printer)
+{
+    printer->setPaperSize(QPrinter::A4);
+    printer->setOutputFormat(QPrinter::NativeFormat);
+    printer->setOrientation(QPrinter::Portrait);
+    printer->setResolution(120);  // DPI 세팅 Default로 96으로 되어있음
+    QTextDocument *td = new QTextDocument();
+    td->setPlainText(titleLineEdit->text()+"    "+bodyTextEdit->toPlainText());
+
+    td->print(printer);
 }
 void MainForm::printReport()
 {
