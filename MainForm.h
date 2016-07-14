@@ -15,6 +15,7 @@
 #include <QDialogButtonBox>
 #include <QPrintPreviewDialog>
 #include "qtrpt.h"
+#include <QtWebKitWidgets/QWebView>
 
 class MainForm : public QWidget
 {
@@ -88,7 +89,8 @@ private:
                     QLabel *titleLabel;
                     QLineEdit *titleLineEdit;
                 QPushButton *titleSearchPushButton;
-            QPlainTextEdit *bodyTextEdit;
+            //QPlainTextEdit *bodyTextEdit;
+            QWebView *bodyWebView;
             QTableView *contentTableView;
             //조작버튼들(Content 패널용)
             QDialogButtonBox *contentDialogButtonBox;

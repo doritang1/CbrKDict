@@ -4,7 +4,7 @@
 #
 #-------------------------------------------------
 
-QT       += sql core gui printsupport
+QT       += sql core gui printsupport webkitwidgets
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
@@ -19,3 +19,6 @@ HEADERS  += MainForm.h\
         ckdbengine.h
 
 include(../CbrkDict/QtRptProject/QtRPT/QtRPT.pri)
+
+DISTFILES += \
+    debug/QtinyMCE/tinymce4_base.html

@@ -1,0 +1,30 @@
+<html>
+  <head>
+    <script src="tinymce_4.3.3\tinymce\js\tinymce\tinymce.min.js"></script>
+    <script type="text/javascript">
+        tinymce.init({
+          selector: "#mytextarea",
+          theme: 'modern',
+          width: 850,
+          height: 605,
+          plugins: [
+            'advlist autolink link image lists charmap print preview hr anchor pagebreak spellchecker',
+            'searchreplace wordcount visualblocks visualchars code fullscreen insertdatetime media nonbreaking',
+            'save table contextmenu directionality emoticons template paste textcolor'
+          ],
+          content_css: 'css/content.css',
+          toolbar: 'insertfile undo redo | styleselect | bold italic | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | link image | print preview media fullpage | forecolor backcolor emoticons',
+          setup: function(mytextarea){
+            mytextarea.on('init', function(e){
+                mytextarea.execCommand('mceFullScreen');
+            });
+          }
+        });
+    </script>
+  </head>
+  <body>
+    <form method="post">
+        <textarea id="mytextarea"></textarea>
+    </form>
+  </body>
+ </html>

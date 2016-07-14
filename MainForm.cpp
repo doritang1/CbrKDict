@@ -2,6 +2,8 @@
 #include <QApplication>
 #include <QMessageBox>
 #include <QHeaderView>
+#include <QWebFrame>
+
 MainForm::MainForm(QWidget *parent)
     : QWidget(parent)
 {
@@ -149,9 +151,18 @@ void MainForm::createContentPanel()
     titleHBoxLayout->addLayout(titleFormLayout);
     titleHBoxLayout->addWidget(titleSearchPushButton);
 
-    bodyTextEdit = new QPlainTextEdit();
-    bodyTextEdit->setMinimumHeight(300);
-    bodyTextEdit->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+//    bodyTextEdit = new QPlainTextEdit();
+//    bodyTextEdit->setMinimumHeight(300);
+//    bodyTextEdit->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+
+    bodyWebView = new QWebView;
+    bodyWebView->setMinimumHeight(100);
+    bodyWebView->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
+
+    QString CurDir =  qApp->applicationDirPath();
+    QUrl url("file:///"+CurDir+"/QtinyMCE/tinymce4_base.html");
+    bodyWebView->setUrl(url);
+    bodyWebView->installEventFilter(this);//웹뷰로부터 오는 이벤트를 받겠다는 뜻
 
     contentTableView = new QTableView;
     contentTableView->setModel(sqlDb->modelContent);
@@ -189,7 +200,8 @@ void MainForm::createContentPanel()
     //생성된 요소를 레이아웃에 담는다.
     contentPanelLayout = new QVBoxLayout;
     contentPanelLayout->addLayout(titleHBoxLayout);
-    contentPanelLayout->addWidget(bodyTextEdit);
+//  contentPanelLayout->addWidget(bodyTextEdit);
+    contentPanelLayout->addWidget(bodyWebView);
     contentPanelLayout->addWidget(contentTableView);
     contentPanelLayout->addWidget(contentDialogButtonBox);
 
@@ -198,7 +210,11 @@ void MainForm::createContentPanel()
 
     //생성된 요소에 데이터를 연결함
     sqlDb->mapperContent->addMapping(titleLineEdit, 2);
-    sqlDb->mapperContent->addMapping(bodyTextEdit, 3);
+    //sqlDb->mapperContent->addMapping(bodyTextEdit, 3);
+
+    //insert QWebView object to javascript.
+    bodyWebView->page()->mainFrame()->addToJavaScriptWindowObject("hostObject", this);
+    bodyWebView->page()->mainFrame()->evaluateJavaScript("tinyMCE.get('mytextarea').execCommand('mceFullScreen');");
 }
 
 //첫번째 Category 선택에 따라 두번째 Category 변경
@@ -233,32 +249,38 @@ void MainForm::updateCategoryLevel3ListView()
 void MainForm::updateContentPanel()
 {
     titleLineEdit->clear();
-    bodyTextEdit->clear();
+    //bodyTextEdit->clear();
 
-    int id;
+    int idLevel3;
     QModelIndex index = categoryLevel3ListView->currentIndex();
     if(index.isValid()){
         QSqlRecord recordCategory = sqlDb->modelCategoryLevel3->record(index.row());
-        id = recordCategory.value("idLevel3").toInt();
-        sqlDb->modelContent->setFilter(QString("colCategoryId = %1").arg(id));
+        idLevel3 = recordCategory.value("idLevel3").toInt();
+        sqlDb->modelContent->setFilter(QString("colCategoryId = %1").arg(idLevel3));
     }else{
         sqlDb->modelContent->setFilter("colCategoryId = -1");
     }
     sqlDb->modelContent->select();
 
-    //데이터가 다수 개일 수가 있으므로 for문을 돌려서 첫번째 데이터를 표시
-    for (int row = 0; row < sqlDb->modelContent->rowCount(); ++row) {
-        QSqlRecord recordContent = sqlDb->modelContent->record(row);
-        //colCategoryId가 idLevel3 값임
-        if (recordContent.value(1).toInt() == id) {
-            sqlDb->mapperContent->setCurrentIndex(row);
-            break;
-        }
-    }
+    sqlDb->mapperContent->setCurrentIndex(0);
+    //replace처리를 하지 않으면 개행문자에서 출력이 잘린다(multiline 처리)
+    QString bodyString;
+    bodyString = sqlDb->modelContent->record(0).value("colBody").toString();
+    bodyWebView->page()->mainFrame()->evaluateJavaScript(QString("tinyMCE.activeEditor.setContent('%1')").arg(bodyString).replace("\n","\\n"));
+
+//    //데이터가 다수 개일 수가 있으므로 for문을 돌려서 첫번째 데이터를 표시
+//    for (int row = 0; row < sqlDb->modelContent->rowCount(); ++row) {
+//        QSqlRecord recordContent = sqlDb->modelContent->record(row);
+//        //colCategoryId가 idLevel3 값임
+//        if (recordContent.value(1).toInt() == idLevel3) {
+//            sqlDb->mapperContent->setCurrentIndex(row);
+//            break;
+//        }
+//    }
 }
 
 //포커스를 받은 리스트뷰의 색인을 저장해주는 슬롯함수
-void MainForm::focusChanged(QWidget *from, QWidget *to)
+void MainForm::focusChanged(QWidget *, QWidget *to)
 {
     //화면을 닫거나 다른 프로그램으로 전환해서 현재 프로그램 내에 포커스가 없는 경우
     //그냥 처리 없이 지나친다.
@@ -462,16 +484,24 @@ void MainForm::addContent()
     sqlDb->mapperContent->setCurrentIndex(row);
 
     titleLineEdit->clear();
-    bodyTextEdit->clear();
+    //bodyTextEdit->clear();
+    QString CurDir =  qApp->applicationDirPath();
+    QUrl url("file:///"+CurDir+"/QtinyMCE/tinymce4_base.html");
+    bodyWebView->setUrl(url);
     titleLineEdit->setFocus();
 }
 void MainForm::deleteContent()
 {
     int row = sqlDb->mapperContent->currentIndex();
     sqlDb->modelContent->removeRow(row);
-    sqlDb->mapperContent->submit();
+    sqlDb->modelContent->submitAll();
+    //sqlDb->mapperContent->submit();
     //매퍼의 현재 인덱스를 삭제된 바로 다음 행이 되게 하고, 삭제된 행이 마지막 행이었다면 지금의 마지막 행이 현재 인덱스가 되게 한다.
     sqlDb->mapperContent->setCurrentIndex(qMin(row, sqlDb->modelContent->rowCount() - 1));
+    //replace처리를 하지 않으면 개행문자에서 출력이 잘린다(multiline 처리)
+    QString bodyString;
+    bodyString = sqlDb->modelContent->record(qMin(row, sqlDb->modelContent->rowCount() - 1)).value("colBody").toString();
+    bodyWebView->page()->mainFrame()->evaluateJavaScript(QString("tinyMCE.activeEditor.setContent('%1')").arg(bodyString).replace("\n","\\n"));
 }
 void MainForm::confirmContent()
 {
@@ -489,16 +519,26 @@ void MainForm::confirmContent()
 
     sqlDb->modelContent->setData(idxCategoryId, idLevel3);
     sqlDb->modelContent->setData(idxTitle, titleLineEdit->text());
-    sqlDb->modelContent->setData(idxBody,bodyTextEdit->toPlainText());
+    //sqlDb->modelContent->setData(idxBody,bodyTextEdit->toPlainText());
+    QString bodyString;
+    bodyString = bodyWebView->page()->mainFrame()->evaluateJavaScript("tinyMCE.activeEditor.getContent();").toString();
+    sqlDb->modelContent->setData(idxBody, bodyString);
 
     sqlDb->modelContent->submitAll();
 
     titleLineEdit->clear();
-    bodyTextEdit->clear();
+    //bodyTextEdit->clear();
+    QString CurDir =  qApp->applicationDirPath();
+    QUrl url("file:///"+CurDir+"/QtinyMCE/tinymce4_base.html");
+    bodyWebView->setUrl(url);
 }
 void MainForm::currentContent(){
     int row = contentTableView->currentIndex().row();
     sqlDb->mapperContent->setCurrentIndex(row);
+    //replace처리를 하지 않으면 개행문자에서 출력이 잘린다(multiline 처리)
+    QString bodyString;
+    bodyString = sqlDb->modelContent->record(row).value("colBody").toString();
+    bodyWebView->page()->mainFrame()->evaluateJavaScript(QString("tinyMCE.activeEditor.setContent('%1')").arg(bodyString).replace("\n","\\n"));
 }
 void MainForm::printBody()
 {
@@ -510,14 +550,20 @@ void MainForm::printBody()
 }
 void MainForm::slotPrint(QPrinter *printer)
 {
+    QWebView *webviewPrint = new QWebView();
+    webviewPrint->setFixedSize(QSize(printer->width(),printer->height()));
+    QString printString;
+    printString = bodyWebView->page()->mainFrame()->evaluateJavaScript("tinyMCE.activeEditor.getContent();").toString();
+    webviewPrint->setHtml(printString);
+   //webviewPrint->setHtml(ui->webViewBody->page()->mainFrame()->toHtml());
+
     printer->setPaperSize(QPrinter::A4);
     printer->setOutputFormat(QPrinter::NativeFormat);
     printer->setOrientation(QPrinter::Portrait);
     printer->setResolution(120);  // DPI 세팅 Default로 96으로 되어있음
-    QTextDocument *td = new QTextDocument();
-    td->setPlainText(titleLineEdit->text()+"    "+bodyTextEdit->toPlainText());
-
-    td->print(printer);
+    QMargins m(25,50,25,50);
+    printer->setPageMargins(m);
+    webviewPrint->print(printer);
 }
 void MainForm::printReport()
 {
