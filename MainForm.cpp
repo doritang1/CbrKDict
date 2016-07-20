@@ -168,12 +168,14 @@ void MainForm::createContentPanel()
     contentTableView->setModel(sqlDb->modelContent);
     contentTableView->hideColumn(0);
     contentTableView->hideColumn(1);
+    contentTableView->hideColumn(4);
     contentTableView->setSelectionMode(QAbstractItemView::SingleSelection);
     contentTableView->setSelectionBehavior(QAbstractItemView::SelectRows);
     contentTableView->resizeColumnsToContents();
     contentTableView->setColumnWidth(2,250);
     contentTableView->horizontalHeader()->setStretchLastSection(true);
     contentTableView->setMinimumHeight(150);
+    //contentTableView->sortByColumn(2,Qt::AscendingOrder);
 
     connect(contentTableView->selectionModel(),
             SIGNAL(currentRowChanged(const QModelIndex &, const QModelIndex &)),
@@ -251,34 +253,47 @@ void MainForm::updateCategoryLevel3ListView()
 void MainForm::updateContentPanel()
 {
     titleLineEdit->clear();
-    //bodyTextEdit->clear();
-
-    int idLevel3;
-    QModelIndex index = categoryLevel3ListView->currentIndex();
-    if(index.isValid()){
-        QSqlRecord recordCategory = sqlDb->modelCategoryLevel3->record(index.row());
-        idLevel3 = recordCategory.value("idLevel3").toInt();
-        sqlDb->modelContent->setFilter(QString("colCategoryId = %1").arg(idLevel3));
-    }else{
-        sqlDb->modelContent->setFilter("colCategoryId = -1");
-    }
-    sqlDb->modelContent->select();
-
-    sqlDb->mapperContent->setCurrentIndex(0);
-    //replace처리를 하지 않으면 개행문자에서 출력이 잘린다(multiline 처리)
+    QModelIndex index;
     QString bodyString;
-    bodyString = sqlDb->modelContent->record(0).value("colBody").toString();
-    bodyWebView->page()->mainFrame()->evaluateJavaScript(QString("tinyMCE.activeEditor.setContent('%1')").arg(bodyString).replace("\n","\\n"));
 
-//    //데이터가 다수 개일 수가 있으므로 for문을 돌려서 첫번째 데이터를 표시
-//    for (int row = 0; row < sqlDb->modelContent->rowCount(); ++row) {
-//        QSqlRecord recordContent = sqlDb->modelContent->record(row);
-//        //colCategoryId가 idLevel3 값임
-//        if (recordContent.value(1).toInt() == idLevel3) {
-//            sqlDb->mapperContent->setCurrentIndex(row);
-//            break;
-//        }
-//    }
+    switch(focusedWidget){
+        case 3:
+            int idLevel3;
+            index = categoryLevel3ListView->currentIndex();
+            if(index.isValid()){
+                QSqlRecord recordCategory = sqlDb->modelCategoryLevel3->record(index.row());
+                idLevel3 = recordCategory.value("idLevel3").toInt();
+                sqlDb->modelContent->setFilter(QString("colCategoryIdLevel3 = %1").arg(idLevel3));
+            }else{
+                sqlDb->modelContent->setFilter("colCategoryIdLevel3 = -1");
+            }
+            sqlDb->modelContent->select();
+
+            sqlDb->mapperContent->setCurrentIndex(0);
+            //replace처리를 하지 않으면 개행문자에서 출력이 잘린다(multiline 처리)
+
+            bodyString = sqlDb->modelContent->record(0).value("colBody").toString();
+            bodyWebView->page()->mainFrame()->evaluateJavaScript(QString("tinyMCE.activeEditor.setContent('%1')").arg(bodyString).replace("\n","\\n"));
+            break;
+        case 2:
+            int idLevel2;
+            index = categoryLevel2ListView->currentIndex();
+            if(index.isValid()){
+                QSqlRecord recordCategory = sqlDb->modelCategoryLevel2->record(index.row());
+                idLevel2 = recordCategory.value("idLevel2").toInt();
+                sqlDb->modelContent->setFilter(QString("colCategoryIdLevel2 = %1").arg(idLevel2));
+            }else{
+                sqlDb->modelContent->setFilter("colCategoryIdLevel2 = -1");
+            }
+            sqlDb->modelContent->select();
+
+            sqlDb->mapperContent->setCurrentIndex(0);
+            //replace처리를 하지 않으면 개행문자에서 출력이 잘린다(multiline 처리)
+
+            bodyString = sqlDb->modelContent->record(0).value("colBody").toString();
+            bodyWebView->page()->mainFrame()->evaluateJavaScript(QString("tinyMCE.activeEditor.setContent('%1')").arg(bodyString).replace("\n","\\n"));
+            break;
+    }
 }
 
 //포커스를 받은 리스트뷰의 색인을 저장해주는 슬롯함수
@@ -374,9 +389,9 @@ void MainForm::deleteCategory()
          int idLevel3 = record.value(0).toInt();//0번째 컬럼, 즉 idLevel3의 데이터를 뽑는다.
          int numContents = 0;
 
-         //tblContent 테이블에서 foreign key인 colCategoryId가 idLevel3와 같은 경우의 갯수를 센다.
+         //tblContent 테이블에서 foreign key인 colCategoryIdLevel3가 idLevel3와 같은 경우의 갯수를 센다.
          QSqlQuery query(QString("SELECT COUNT(*) FROM tblContent "
-                                 "WHERE colCategoryId = %1").arg(idLevel3));
+                                 "WHERE colCategoryIdLevel3 = %1").arg(idLevel3));
          if (query.next())
              numContents = query.value(0).toInt();
          //Category Level3에 걸리는 Content가 있다면 사용자의 의사를 물어본다.
@@ -391,7 +406,7 @@ void MainForm::deleteCategory()
              }
              //사용자가 Yes를 눌렀다면 그대로 진행하여 Category Level3에 속한 Content들을 삭제함
              query.exec(QString("DELETE FROM tblContent "
-                                "WHERE colCategoryId = %1").arg(idLevel3));
+                                "WHERE colCategoryIdLevel3 = %1").arg(idLevel3));
          }
          //Category Level3에 걸리는 Content가 없다면 그냥 삭제한다.
          sqlDb->modelCategoryLevel3->removeRow(index.row());
@@ -507,20 +522,31 @@ void MainForm::deleteContent()
 }
 void MainForm::confirmContent()
 {
+    QModelIndex index;
+
     int idLevel3;
-    QModelIndex index = categoryLevel3ListView->currentIndex();
+    index = categoryLevel3ListView->currentIndex();
     if(index.isValid()){
         QSqlRecord recordCategory = sqlDb->modelCategoryLevel3->record(index.row());
         idLevel3 = recordCategory.value("idLevel3").toInt();
     }
 
+    int idLevel2;
+    index = categoryLevel2ListView->currentIndex();
+    if(index.isValid()){
+        QSqlRecord recordCategory = sqlDb->modelCategoryLevel2->record(index.row());
+        idLevel2 = recordCategory.value("idLevel2").toInt();
+    }
+
     int row = sqlDb->mapperContent->currentIndex();
-    QModelIndex idxCategoryId = sqlDb->modelContent->index(row,1);
+    QModelIndex idxCategoryIdLevel3 = sqlDb->modelContent->index(row,1);
     QModelIndex idxTitle = sqlDb->modelContent->index(row,2);
     QModelIndex idxBody = sqlDb->modelContent->index(row,3);
+    QModelIndex idxCategoryIdLevel2 = sqlDb->modelContent->index(row,4);
 
-    sqlDb->modelContent->setData(idxCategoryId, idLevel3);
+    sqlDb->modelContent->setData(idxCategoryIdLevel3, idLevel3);
     sqlDb->modelContent->setData(idxTitle, titleLineEdit->text());
+    sqlDb->modelContent->setData(idxCategoryIdLevel2, idLevel2);
     //sqlDb->modelContent->setData(idxBody,bodyTextEdit->toPlainText());
     QString bodyString;
     bodyString = bodyWebView->page()->mainFrame()->evaluateJavaScript("tinyMCE.activeEditor.getContent();").toString();
