@@ -24,7 +24,9 @@ class MainForm : public QWidget
 public:
     MainForm(QWidget *parent = 0);
     ~MainForm();
-
+protected:
+    //키입력을 감시해서 다른 행동을 하게 하기 위한 일종의 후킹함수
+   bool eventFilter(QObject* obj, QEvent* event);
 private slots:
     //데이터 표시 함수
     void updateCategoryLevel2ListView();

@@ -613,3 +613,34 @@ void MainForm::setValue(const int recNo, const QString paramName, QVariant &para
 //                      "<font color=#FF0000>red</font>, <font color=#CC6633>brown</font>, <font color=#00FF00>green</font> etc</font></body></div>";
           paramValue = sqlDb->modelContent->record(recNo).value("colBody").toString();
 }
+
+//키입력을 감시해서 다른 행동을 하게 하기 위한 일종의 후킹함수
+//한글입력후 엔터등을 눌렀을 때 캐럿이 사라지는 것을 막고자 포커스를 죽였다가 살린다.
+//이 경우 올바른 해결책은 IME메시지를 받아 포커스를 조작하는 것인데 아직 못했다.
+bool MainForm::eventFilter(QObject* obj, QEvent* event)
+{
+    if(obj == bodyWebView)
+    {
+        if(event->type() == QEvent::KeyPress)
+        {
+            QKeyEvent* keyEvent = static_cast<QKeyEvent*>(event);
+            int key = keyEvent->key();
+            if(key == Qt::Key_Shift){
+                return false;
+            }else if(key == Qt::Key_Return||Qt::Key_Enter||Qt::Key_Space
+                    ||Qt::Key_Insert||Qt::Key_Delete||Qt::Key_Home
+                    ||Qt::Key_End||Qt::Key_PageUp||Qt::Key_PageDown
+                    ||Qt::Key_Left||Qt::Key_Right||Qt::Key_Up||Qt::Key_Down)
+            {
+                bodyWebView->clearFocus();
+                bodyWebView->setFocus();
+                return false;
+            }
+        }else{
+            return false;
+        }
+    }else{
+        //pass the event on to the parent class
+        return QWidget::eventFilter(obj, event);
+    }
+}
