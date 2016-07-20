@@ -173,6 +173,8 @@ void MainForm::createContentPanel()
     contentTableView->resizeColumnsToContents();
     contentTableView->setColumnWidth(2,250);
     contentTableView->horizontalHeader()->setStretchLastSection(true);
+    contentTableView->setMinimumHeight(150);
+
     connect(contentTableView->selectionModel(),
             SIGNAL(currentRowChanged(const QModelIndex &, const QModelIndex &)),
             this, SLOT(currentContent()));
@@ -580,5 +582,8 @@ void MainForm::setValue(const int recNo, const QString paramName, QVariant &para
     if (paramName == "title")
         paramValue = sqlDb->modelContent->record(recNo).value("colTitle").toString();
     if (paramName == "body")
-        paramValue = sqlDb->modelContent->record(recNo).value("colBody").toString();
+//        paramValue =  "<div><body><font size=5>You can do the text <b>bold</b>, "
+//                      "<i>italics</i>, <u>underline</u>. To allocate separate words in various color, as example: <font color=#0000FF>blue</font>, "
+//                      "<font color=#FF0000>red</font>, <font color=#CC6633>brown</font>, <font color=#00FF00>green</font> etc</font></body></div>";
+          paramValue = sqlDb->modelContent->record(recNo).value("colBody").toString();
 }
