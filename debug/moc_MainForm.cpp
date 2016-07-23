@@ -19,8 +19,8 @@
 
 QT_BEGIN_MOC_NAMESPACE
 struct qt_meta_stringdata_MainForm_t {
-    QByteArrayData data[27];
-    char stringdata0[329];
+    QByteArrayData data[28];
+    char stringdata0[343];
 };
 #define QT_MOC_LITERAL(idx, ofs, len) \
     Q_STATIC_BYTE_ARRAY_DATA_HEADER_INITIALIZER_WITH_OFFSET(len, \
@@ -42,20 +42,21 @@ QT_MOC_LITERAL(9, 117, 14), // "insertCategory"
 QT_MOC_LITERAL(10, 132, 11), // "addCategory"
 QT_MOC_LITERAL(11, 144, 14), // "deleteCategory"
 QT_MOC_LITERAL(12, 159, 15), // "confirmCategory"
-QT_MOC_LITERAL(13, 175, 10), // "addContent"
-QT_MOC_LITERAL(14, 186, 13), // "deleteContent"
-QT_MOC_LITERAL(15, 200, 14), // "confirmContent"
-QT_MOC_LITERAL(16, 215, 14), // "currentContent"
-QT_MOC_LITERAL(17, 230, 9), // "printBody"
-QT_MOC_LITERAL(18, 240, 9), // "slotPrint"
-QT_MOC_LITERAL(19, 250, 9), // "QPrinter*"
-QT_MOC_LITERAL(20, 260, 11), // "printReport"
-QT_MOC_LITERAL(21, 272, 8), // "setValue"
-QT_MOC_LITERAL(22, 281, 5), // "recNo"
-QT_MOC_LITERAL(23, 287, 9), // "paramName"
-QT_MOC_LITERAL(24, 297, 9), // "QVariant&"
-QT_MOC_LITERAL(25, 307, 10), // "paramValue"
-QT_MOC_LITERAL(26, 318, 10) // "reportPage"
+QT_MOC_LITERAL(13, 175, 13), // "searchContent"
+QT_MOC_LITERAL(14, 189, 10), // "addContent"
+QT_MOC_LITERAL(15, 200, 13), // "deleteContent"
+QT_MOC_LITERAL(16, 214, 14), // "confirmContent"
+QT_MOC_LITERAL(17, 229, 14), // "currentContent"
+QT_MOC_LITERAL(18, 244, 9), // "printBody"
+QT_MOC_LITERAL(19, 254, 9), // "slotPrint"
+QT_MOC_LITERAL(20, 264, 9), // "QPrinter*"
+QT_MOC_LITERAL(21, 274, 11), // "printReport"
+QT_MOC_LITERAL(22, 286, 8), // "setValue"
+QT_MOC_LITERAL(23, 295, 5), // "recNo"
+QT_MOC_LITERAL(24, 301, 9), // "paramName"
+QT_MOC_LITERAL(25, 311, 9), // "QVariant&"
+QT_MOC_LITERAL(26, 321, 10), // "paramValue"
+QT_MOC_LITERAL(27, 332, 10) // "reportPage"
 
     },
     "MainForm\0updateCategoryLevel2ListView\0"
@@ -63,11 +64,11 @@ QT_MOC_LITERAL(26, 318, 10) // "reportPage"
     "updateContentPanel\0focusChanged\0"
     "QWidget*\0from\0to\0insertCategory\0"
     "addCategory\0deleteCategory\0confirmCategory\0"
-    "addContent\0deleteContent\0confirmContent\0"
-    "currentContent\0printBody\0slotPrint\0"
-    "QPrinter*\0printReport\0setValue\0recNo\0"
-    "paramName\0QVariant&\0paramValue\0"
-    "reportPage"
+    "searchContent\0addContent\0deleteContent\0"
+    "confirmContent\0currentContent\0printBody\0"
+    "slotPrint\0QPrinter*\0printReport\0"
+    "setValue\0recNo\0paramName\0QVariant&\0"
+    "paramValue\0reportPage"
 };
 #undef QT_MOC_LITERAL
 
@@ -77,7 +78,7 @@ static const uint qt_meta_data_MainForm[] = {
        7,       // revision
        0,       // classname
        0,    0, // classinfo
-      16,   14, // methods
+      17,   14, // methods
        0,    0, // properties
        0,    0, // enums/sets
        0,    0, // constructors
@@ -85,22 +86,23 @@ static const uint qt_meta_data_MainForm[] = {
        0,       // signalCount
 
  // slots: name, argc, parameters, tag, flags
-       1,    0,   94,    2, 0x08 /* Private */,
-       3,    0,   95,    2, 0x08 /* Private */,
-       4,    0,   96,    2, 0x08 /* Private */,
-       5,    2,   97,    2, 0x08 /* Private */,
-       9,    0,  102,    2, 0x08 /* Private */,
-      10,    0,  103,    2, 0x08 /* Private */,
-      11,    0,  104,    2, 0x08 /* Private */,
-      12,    0,  105,    2, 0x08 /* Private */,
-      13,    0,  106,    2, 0x08 /* Private */,
-      14,    0,  107,    2, 0x08 /* Private */,
-      15,    0,  108,    2, 0x08 /* Private */,
-      16,    0,  109,    2, 0x08 /* Private */,
-      17,    0,  110,    2, 0x08 /* Private */,
-      18,    1,  111,    2, 0x08 /* Private */,
-      20,    0,  114,    2, 0x08 /* Private */,
-      21,    4,  115,    2, 0x08 /* Private */,
+       1,    0,   99,    2, 0x08 /* Private */,
+       3,    0,  100,    2, 0x08 /* Private */,
+       4,    0,  101,    2, 0x08 /* Private */,
+       5,    2,  102,    2, 0x08 /* Private */,
+       9,    0,  107,    2, 0x08 /* Private */,
+      10,    0,  108,    2, 0x08 /* Private */,
+      11,    0,  109,    2, 0x08 /* Private */,
+      12,    0,  110,    2, 0x08 /* Private */,
+      13,    0,  111,    2, 0x08 /* Private */,
+      14,    0,  112,    2, 0x08 /* Private */,
+      15,    0,  113,    2, 0x08 /* Private */,
+      16,    0,  114,    2, 0x08 /* Private */,
+      17,    0,  115,    2, 0x08 /* Private */,
+      18,    0,  116,    2, 0x08 /* Private */,
+      19,    1,  117,    2, 0x08 /* Private */,
+      21,    0,  120,    2, 0x08 /* Private */,
+      22,    4,  121,    2, 0x08 /* Private */,
 
  // slots: parameters
     QMetaType::Void,
@@ -116,9 +118,10 @@ static const uint qt_meta_data_MainForm[] = {
     QMetaType::Void,
     QMetaType::Void,
     QMetaType::Void,
-    QMetaType::Void, 0x80000000 | 19,    2,
     QMetaType::Void,
-    QMetaType::Void, QMetaType::Int, QMetaType::QString, 0x80000000 | 24, QMetaType::Int,   22,   23,   25,   26,
+    QMetaType::Void, 0x80000000 | 20,    2,
+    QMetaType::Void,
+    QMetaType::Void, QMetaType::Int, QMetaType::QString, 0x80000000 | 25, QMetaType::Int,   23,   24,   26,   27,
 
        0        // eod
 };
@@ -137,14 +140,15 @@ void MainForm::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int _id, vo
         case 5: _t->addCategory(); break;
         case 6: _t->deleteCategory(); break;
         case 7: _t->confirmCategory(); break;
-        case 8: _t->addContent(); break;
-        case 9: _t->deleteContent(); break;
-        case 10: _t->confirmContent(); break;
-        case 11: _t->currentContent(); break;
-        case 12: _t->printBody(); break;
-        case 13: _t->slotPrint((*reinterpret_cast< QPrinter*(*)>(_a[1]))); break;
-        case 14: _t->printReport(); break;
-        case 15: _t->setValue((*reinterpret_cast< const int(*)>(_a[1])),(*reinterpret_cast< const QString(*)>(_a[2])),(*reinterpret_cast< QVariant(*)>(_a[3])),(*reinterpret_cast< const int(*)>(_a[4]))); break;
+        case 8: _t->searchContent(); break;
+        case 9: _t->addContent(); break;
+        case 10: _t->deleteContent(); break;
+        case 11: _t->confirmContent(); break;
+        case 12: _t->currentContent(); break;
+        case 13: _t->printBody(); break;
+        case 14: _t->slotPrint((*reinterpret_cast< QPrinter*(*)>(_a[1]))); break;
+        case 15: _t->printReport(); break;
+        case 16: _t->setValue((*reinterpret_cast< const int(*)>(_a[1])),(*reinterpret_cast< const QString(*)>(_a[2])),(*reinterpret_cast< QVariant(*)>(_a[3])),(*reinterpret_cast< const int(*)>(_a[4]))); break;
         default: ;
         }
     } else if (_c == QMetaObject::RegisterMethodArgumentMetaType) {
@@ -187,13 +191,13 @@ int MainForm::qt_metacall(QMetaObject::Call _c, int _id, void **_a)
     if (_id < 0)
         return _id;
     if (_c == QMetaObject::InvokeMetaMethod) {
-        if (_id < 16)
+        if (_id < 17)
             qt_static_metacall(this, _c, _id, _a);
-        _id -= 16;
+        _id -= 17;
     } else if (_c == QMetaObject::RegisterMethodArgumentMetaType) {
-        if (_id < 16)
+        if (_id < 17)
             qt_static_metacall(this, _c, _id, _a);
-        _id -= 16;
+        _id -= 17;
     }
     return _id;
 }

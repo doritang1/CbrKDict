@@ -137,19 +137,50 @@ void MainForm::createContentPanel()
     /*프레임 안에 나타낼 각종 요소를 생성한다.*/
 
     //타이틀을 나타낼 요소를 생성
-    titleLabel = new QLabel(tr("Title"));
+    titleLabel = new QLabel(tr("Question"));
     titleLabel->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
     titleLabel->setContentsMargins(0,5,0,0); // 이 값을 안주면 라벨의 텍스트가 약간 위쪽에 있게 됨
     titleLineEdit = new QLineEdit;
-    titleSearchPushButton = new QPushButton(tr("&Find"));
-    titleSearchPushButton->setSizePolicy(QSizePolicy::Maximum,QSizePolicy::Maximum);
+
+//    QLabel *titleLabel01 = new QLabel(tr("①"));
+//    titleLabel01->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
+//    titleLabel01->setContentsMargins(0,5,0,0); // 이 값을 안주면 라벨의 텍스트가 약간 위쪽에 있게 됨
+//    QLineEdit *titleLineEdit01 = new QLineEdit;
+
+//    QLabel *titleLabel02 = new QLabel(tr("②"));
+//    titleLabel02->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
+//    titleLabel02->setContentsMargins(0,5,0,0); // 이 값을 안주면 라벨의 텍스트가 약간 위쪽에 있게 됨
+//    QLineEdit *titleLineEdit02 = new QLineEdit;
+
+//    QLabel *titleLabel03 = new QLabel(tr("③"));
+//    titleLabel03->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
+//    titleLabel03->setContentsMargins(0,5,0,0); // 이 값을 안주면 라벨의 텍스트가 약간 위쪽에 있게 됨
+//    QLineEdit *titleLineEdit03 = new QLineEdit;
+
+//    QLabel *titleLabel04 = new QLabel(tr("④"));
+//    titleLabel04->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
+//    titleLabel04->setContentsMargins(0,5,0,0); // 이 값을 안주면 라벨의 텍스트가 약간 위쪽에 있게 됨
+//    QLineEdit *titleLineEdit04 = new QLineEdit;
 
     titleFormLayout = new QFormLayout;
     titleFormLayout->addRow(titleLabel,titleLineEdit);
+//    titleFormLayout->addRow(titleLabel01, titleLineEdit01);
+//    titleFormLayout->addRow(titleLabel02, titleLineEdit02);
+//    titleFormLayout->addRow(titleLabel03, titleLineEdit03);
+//    titleFormLayout->addRow(titleLabel04, titleLineEdit04);
+
+    titleSearchPushButton = new QPushButton(tr("&Search"));
+    titleSearchPushButton->setSizePolicy(QSizePolicy::Maximum,QSizePolicy::Maximum);
+
+    QSpacerItem *vspacer = new QSpacerItem(40,20,QSizePolicy::Minimum,QSizePolicy::Expanding);
+
+    QVBoxLayout *searchButtonLayout = new QVBoxLayout;
+    searchButtonLayout->addWidget(titleSearchPushButton);
+    searchButtonLayout->addItem(vspacer);
 
     titleHBoxLayout = new QHBoxLayout;
     titleHBoxLayout->addLayout(titleFormLayout);
-    titleHBoxLayout->addWidget(titleSearchPushButton);
+    titleHBoxLayout->addLayout(searchButtonLayout);
 
 //    bodyTextEdit = new QPlainTextEdit();
 //    bodyTextEdit->setMinimumHeight(300);
@@ -195,6 +226,7 @@ void MainForm::createContentPanel()
     contentDialogButtonBox->addButton(printReportButton, QDialogButtonBox::ActionRole);
 
     //조작버튼을 슬롯함수와 연결
+    connect(titleSearchPushButton, SIGNAL(clicked()), this, SLOT(searchContent()));
     connect(addContentButton, SIGNAL(clicked()), this, SLOT(addContent()));
     connect(deleteContentButton, SIGNAL(clicked()), this, SLOT(deleteContent()));
     connect(confirmContentButton, SIGNAL(clicked()), this, SLOT(confirmContent()));
@@ -217,8 +249,8 @@ void MainForm::createContentPanel()
     //sqlDb->mapperContent->addMapping(bodyTextEdit, 3);
 
     //insert QWebView object to javascript.
-    bodyWebView->page()->mainFrame()->addToJavaScriptWindowObject("hostObject", this);
-    bodyWebView->page()->mainFrame()->evaluateJavaScript("tinyMCE.get('mytextarea').execCommand('mceFullScreen');");
+    //bodyWebView->page()->mainFrame()->addToJavaScriptWindowObject("hostObject", this);
+    //bodyWebView->page()->mainFrame()->evaluateJavaScript("tinyMCE.get('mytextarea').execCommand('mceFullScreen');");
 }
 
 //첫번째 Category 선택에 따라 두번째 Category 변경
@@ -492,9 +524,30 @@ void MainForm::confirmCategory()
 }
 
 //Content 데이터 조작 함수들
+void MainForm::searchContent()
+{
+
+    QString target("%"+titleLineEdit->text()+"%");
+    QSqlQuery qryFilter;
+    QString qryStrFilter = "SELECT colTitle, colBody FROM tblContent WHERE colTitle LIKE :target";
+    qryFilter.prepare(qryStrFilter);
+    qryFilter.bindValue(":target", target);
+
+    if(!qryFilter.exec()){
+        // Error Handling, check query.lastError(), probably return
+        qDebug() << qryFilter.lastError().text();
+    } else {
+        QString str;
+        while(qryFilter.next()){
+            str = str + "\n" + qryFilter.value("colTitle").toString();
+        }
+        QMessageBox::information(this,"Sorry~~", str);
+    }
+}
+
 void MainForm::addContent()
 {
-    sqlDb->mapperContent->submit();//만약 현재 Content를 편집중에 Add버튼을 눌렀다면 입력중이었던 데이터는 저장해야 함
+    //sqlDb->mapperContent->submit();//만약 현재 Content를 편집중에 Add버튼을 눌렀다면 입력중이었던 데이터는 저장해야 함
 
     int row = sqlDb->modelContent->rowCount();
     sqlDb->modelContent->insertRow(row);
@@ -608,10 +661,7 @@ void MainForm::setValue(const int recNo, const QString paramName, QVariant &para
     if (paramName == "title")
         paramValue = sqlDb->modelContent->record(recNo).value("colTitle").toString();
     if (paramName == "body")
-//        paramValue =  "<div><body><font size=5>You can do the text <b>bold</b>, "
-//                      "<i>italics</i>, <u>underline</u>. To allocate separate words in various color, as example: <font color=#0000FF>blue</font>, "
-//                      "<font color=#FF0000>red</font>, <font color=#CC6633>brown</font>, <font color=#00FF00>green</font> etc</font></body></div>";
-          paramValue = sqlDb->modelContent->record(recNo).value("colBody").toString();
+        paramValue = sqlDb->modelContent->record(recNo).value("colBody").toString();
 }
 
 //키입력을 감시해서 다른 행동을 하게 하기 위한 일종의 후킹함수

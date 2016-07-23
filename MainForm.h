@@ -43,6 +43,7 @@ private slots:
     void confirmCategory();
 
     //데이터 조작용 함수(Content 패널)
+    void searchContent();
     void addContent();
     void deleteContent();
     void confirmContent();
