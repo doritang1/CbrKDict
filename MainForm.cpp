@@ -50,73 +50,83 @@ void MainForm::createCategoryPanel()
 
     /*프레임 안에 나타낼 각종 요소를 생성한다.*/
 
-    //데이터를 표시할 리스트뷰를 생성
-    categoryLevel1Label = new QLabel(tr("Primary Category"));
-    categoryLevel1ListView = new QListView;
+    //리스트뷰1 생성
+    {
+        categoryLevel1Label = new QLabel(tr("Primary Category"));
+        categoryLevel1ListView = new QListView;
 
-    categoryLevel1ListView->setModel(sqlDb->modelCategoryLevel1);
-    categoryLevel1ListView->setModelColumn(1);
-    categoryLevel1ListView->setObjectName("ListView_Level1");
-    connect(categoryLevel1ListView->selectionModel(),
-            SIGNAL(currentRowChanged(const QModelIndex &, const QModelIndex &)),
-            this, SLOT(updateCategoryLevel2ListView()));
-    connect(categoryLevel1ListView->selectionModel(),
-            SIGNAL(currentRowChanged(const QModelIndex &, const QModelIndex &)),
-            this, SLOT(updateCategoryLevel3ListView()));
-    connect(categoryLevel1ListView->selectionModel(),
-            SIGNAL(currentRowChanged(const QModelIndex &, const QModelIndex &)),
-            this, SLOT(updateContentPanel()));
-    categoryLevel2Label = new QLabel(tr("Secondary Category"));
-    categoryLevel2ListView = new QListView;
-    categoryLevel2ListView->setModel(sqlDb->modelCategoryLevel2);
-    categoryLevel2ListView->setModelColumn(2);
-    categoryLevel2ListView->setObjectName("ListView_Level2");
-    connect(categoryLevel2ListView->selectionModel(),
-            SIGNAL(currentRowChanged(const QModelIndex &, const QModelIndex &)),
-            this, SLOT(updateCategoryLevel3ListView()));
-    connect(categoryLevel2ListView->selectionModel(),
-            SIGNAL(currentRowChanged(const QModelIndex &, const QModelIndex &)),
-            this, SLOT(updateContentPanel()));
-    categoryLevel3Label = new QLabel(tr("Tertiary Category"));
-    categoryLevel3ListView = new QListView;
-    categoryLevel3ListView->setModel(sqlDb->modelCategoryLevel3);
-    categoryLevel3ListView->setModelColumn(3);
-    categoryLevel3ListView->setObjectName("ListView_Level3");
-    connect(categoryLevel3ListView->selectionModel(),
-            SIGNAL(currentRowChanged(const QModelIndex &, const QModelIndex &)),
-            this, SLOT(updateContentPanel()));
-
+        categoryLevel1ListView->setModel(sqlDb->modelCategoryLevel1);
+        categoryLevel1ListView->setModelColumn(1);
+        categoryLevel1ListView->setObjectName("ListView_Level1");
+        connect(categoryLevel1ListView->selectionModel(),
+                SIGNAL(currentRowChanged(const QModelIndex &, const QModelIndex &)),
+                this, SLOT(updateCategoryLevel2ListView()));
+        connect(categoryLevel1ListView->selectionModel(),
+                SIGNAL(currentRowChanged(const QModelIndex &, const QModelIndex &)),
+                this, SLOT(updateCategoryLevel3ListView()));
+        connect(categoryLevel1ListView->selectionModel(),
+                SIGNAL(currentRowChanged(const QModelIndex &, const QModelIndex &)),
+                this, SLOT(updateContentPanel()));
+    }
+    //리스트뷰2 생성
+    {
+        categoryLevel2Label = new QLabel(tr("Secondary Category"));
+        categoryLevel2ListView = new QListView;
+        categoryLevel2ListView->setModel(sqlDb->modelCategoryLevel2);
+        categoryLevel2ListView->setModelColumn(2);
+        categoryLevel2ListView->setObjectName("ListView_Level2");
+        connect(categoryLevel2ListView->selectionModel(),
+                SIGNAL(currentRowChanged(const QModelIndex &, const QModelIndex &)),
+                this, SLOT(updateCategoryLevel3ListView()));
+        connect(categoryLevel2ListView->selectionModel(),
+                SIGNAL(currentRowChanged(const QModelIndex &, const QModelIndex &)),
+                this, SLOT(updateContentPanel()));
+    }
+    //리스트뷰3 생성
+    {
+        categoryLevel3Label = new QLabel(tr("Tertiary Category"));
+        categoryLevel3ListView = new QListView;
+        categoryLevel3ListView->setModel(sqlDb->modelCategoryLevel3);
+        categoryLevel3ListView->setModelColumn(3);
+        categoryLevel3ListView->setObjectName("ListView_Level3");
+        connect(categoryLevel3ListView->selectionModel(),
+                SIGNAL(currentRowChanged(const QModelIndex &, const QModelIndex &)),
+                this, SLOT(updateContentPanel()));
+    }
     //어떤 컨트롤이 포커스를 받았는지 알려주는 시그널과 이를 받아 컨트롤의 이름에 대한 색인을 저장하는 슬롯함수를 연결
     connect(qApp, SIGNAL(focusChanged(QWidget*,QWidget*)),
       SLOT(focusChanged(QWidget*,QWidget*)));
 
-    //그리드 레이아웃 생성후 컨트롤들 추가
-    categoryGridLayout = new QGridLayout;
-    categoryGridLayout->addWidget(categoryLevel1Label,0,0,1,2);
-    categoryGridLayout->addWidget(categoryLevel1ListView,1,0,6,2);
-    categoryGridLayout->addWidget(categoryLevel2Label,7,0,1,2);
-    categoryGridLayout->addWidget(categoryLevel2ListView,8,0,6,2);
-    categoryGridLayout->addWidget(categoryLevel3Label,14,0,1,2);
-    categoryGridLayout->addWidget(categoryLevel3ListView,15,0,6,2);
-
+    //그리드 레이아웃 생성후 리스트뷰들 추가
+    {
+        categoryGridLayout = new QGridLayout;
+        categoryGridLayout->addWidget(categoryLevel1Label,0,0,1,2);
+        categoryGridLayout->addWidget(categoryLevel1ListView,1,0,6,2);
+        categoryGridLayout->addWidget(categoryLevel2Label,7,0,1,2);
+        categoryGridLayout->addWidget(categoryLevel2ListView,8,0,6,2);
+        categoryGridLayout->addWidget(categoryLevel3Label,14,0,1,2);
+        categoryGridLayout->addWidget(categoryLevel3ListView,15,0,6,2);
+    }
     //조작버튼부를 생성
-    insertCategoryButton = new QPushButton(tr("Insert"));
-    addCategoryButton = new QPushButton(tr("Add"));
-    deleteCategoryButton = new QPushButton(tr("Delete"));
-    confirmCategoryButton = new QPushButton(tr("Confirm"));
+    {
+        insertCategoryButton = new QPushButton(tr("Insert"));
+        addCategoryButton = new QPushButton(tr("Add"));
+        deleteCategoryButton = new QPushButton(tr("Delete"));
+        confirmCategoryButton = new QPushButton(tr("Confirm"));
 
-    //조작버튼부를 그룹화
-    categoryDialogButtonBox = new QDialogButtonBox;
-    categoryDialogButtonBox->addButton(insertCategoryButton, QDialogButtonBox::ActionRole);
-    categoryDialogButtonBox->addButton(addCategoryButton, QDialogButtonBox::ActionRole);
-    categoryDialogButtonBox->addButton(deleteCategoryButton, QDialogButtonBox::ActionRole);
-    categoryDialogButtonBox->addButton(confirmCategoryButton, QDialogButtonBox::ActionRole);
+        //조작버튼부를 그룹화
+        categoryDialogButtonBox = new QDialogButtonBox;
+        categoryDialogButtonBox->addButton(insertCategoryButton, QDialogButtonBox::ActionRole);
+        categoryDialogButtonBox->addButton(addCategoryButton, QDialogButtonBox::ActionRole);
+        categoryDialogButtonBox->addButton(deleteCategoryButton, QDialogButtonBox::ActionRole);
+        categoryDialogButtonBox->addButton(confirmCategoryButton, QDialogButtonBox::ActionRole);
 
-    //조작버튼을 슬롯함수와 연결
-    connect(insertCategoryButton, SIGNAL(clicked()), this, SLOT(insertCategory()));
-    connect(addCategoryButton, SIGNAL(clicked()), this, SLOT(addCategory()));
-    connect(deleteCategoryButton, SIGNAL(clicked()), this, SLOT(deleteCategory()));
-    connect(confirmCategoryButton, SIGNAL(clicked()), this, SLOT(confirmCategory()));
+        //조작버튼을 슬롯함수와 연결
+        connect(insertCategoryButton, SIGNAL(clicked()), this, SLOT(insertCategory()));
+        connect(addCategoryButton, SIGNAL(clicked()), this, SLOT(addCategory()));
+        connect(deleteCategoryButton, SIGNAL(clicked()), this, SLOT(deleteCategory()));
+        connect(confirmCategoryButton, SIGNAL(clicked()), this, SLOT(confirmCategory()));
+    }
 
     //생성된 요소를 레이아웃에 담는다.
     categoryPanelLayout = new QVBoxLayout;
@@ -137,110 +147,120 @@ void MainForm::createContentPanel()
     /*프레임 안에 나타낼 각종 요소를 생성한다.*/
 
     //타이틀을 나타낼 요소를 생성
-    titleLabel = new QLabel(tr("Question"));
-    titleLabel->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
-    titleLabel->setContentsMargins(0,5,0,0); // 이 값을 안주면 라벨의 텍스트가 약간 위쪽에 있게 됨
-    titleLineEdit = new QLineEdit;
+    {
+        titleLabel = new QLabel(tr("Question"));
+        titleLabel->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
+        titleLabel->setContentsMargins(0,5,0,0); // 이 값을 안주면 라벨의 텍스트가 약간 위쪽에 있게 됨
+        titleLineEdit = new QLineEdit;
 
-    QLabel *titleLabel01 = new QLabel(tr("①"));
-    titleLabel01->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
-    titleLabel01->setContentsMargins(0,5,0,0); // 이 값을 안주면 라벨의 텍스트가 약간 위쪽에 있게 됨
-    QLineEdit *titleLineEdit01 = new QLineEdit;
+        QLabel *titleLabel01 = new QLabel(tr("①"));
+        titleLabel01->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
+        titleLabel01->setContentsMargins(0,5,0,0); // 이 값을 안주면 라벨의 텍스트가 약간 위쪽에 있게 됨
+        QLineEdit *titleLineEdit01 = new QLineEdit;
 
-    QLabel *titleLabel02 = new QLabel(tr("②"));
-    titleLabel02->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
-    titleLabel02->setContentsMargins(0,5,0,0); // 이 값을 안주면 라벨의 텍스트가 약간 위쪽에 있게 됨
-    QLineEdit *titleLineEdit02 = new QLineEdit;
+        QLabel *titleLabel02 = new QLabel(tr("②"));
+        titleLabel02->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
+        titleLabel02->setContentsMargins(0,5,0,0); // 이 값을 안주면 라벨의 텍스트가 약간 위쪽에 있게 됨
+        QLineEdit *titleLineEdit02 = new QLineEdit;
 
-    QLabel *titleLabel03 = new QLabel(tr("③"));
-    titleLabel03->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
-    titleLabel03->setContentsMargins(0,5,0,0); // 이 값을 안주면 라벨의 텍스트가 약간 위쪽에 있게 됨
-    QLineEdit *titleLineEdit03 = new QLineEdit;
+        QLabel *titleLabel03 = new QLabel(tr("③"));
+        titleLabel03->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
+        titleLabel03->setContentsMargins(0,5,0,0); // 이 값을 안주면 라벨의 텍스트가 약간 위쪽에 있게 됨
+        QLineEdit *titleLineEdit03 = new QLineEdit;
 
-    QLabel *titleLabel04 = new QLabel(tr("④"));
-    titleLabel04->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
-    titleLabel04->setContentsMargins(0,5,0,0); // 이 값을 안주면 라벨의 텍스트가 약간 위쪽에 있게 됨
-    QLineEdit *titleLineEdit04 = new QLineEdit;
+        QLabel *titleLabel04 = new QLabel(tr("④"));
+        titleLabel04->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
+        titleLabel04->setContentsMargins(0,5,0,0); // 이 값을 안주면 라벨의 텍스트가 약간 위쪽에 있게 됨
+        QLineEdit *titleLineEdit04 = new QLineEdit;
 
-    titleFormLayout = new QFormLayout;
-    titleFormLayout->addRow(titleLabel,titleLineEdit);
-    titleFormLayout->addRow(titleLabel01, titleLineEdit01);
-    titleFormLayout->addRow(titleLabel02, titleLineEdit02);
-    titleFormLayout->addRow(titleLabel03, titleLineEdit03);
-    titleFormLayout->addRow(titleLabel04, titleLineEdit04);
+        titleFormLayout = new QFormLayout;
+        titleFormLayout->addRow(titleLabel,titleLineEdit);
+        titleFormLayout->addRow(titleLabel01, titleLineEdit01);
+        titleFormLayout->addRow(titleLabel02, titleLineEdit02);
+        titleFormLayout->addRow(titleLabel03, titleLineEdit03);
+        titleFormLayout->addRow(titleLabel04, titleLineEdit04);
 
-    titleSearchPushButton = new QPushButton(tr("&Search"));
-    titleSearchPushButton->setSizePolicy(QSizePolicy::Maximum,QSizePolicy::Maximum);
+        titleSearchPushButton = new QPushButton(tr("&Search"));
+        titleSearchPushButton->setSizePolicy(QSizePolicy::Maximum,QSizePolicy::Maximum);
 
-    QSpacerItem *vspacer = new QSpacerItem(40,20,QSizePolicy::Minimum,QSizePolicy::Expanding);
+        QSpacerItem *vspacer = new QSpacerItem(40,20,QSizePolicy::Minimum,QSizePolicy::Expanding);
 
-    QVBoxLayout *searchButtonLayout = new QVBoxLayout;
-    searchButtonLayout->addWidget(titleSearchPushButton);
-    searchButtonLayout->addItem(vspacer);
+        QVBoxLayout *searchButtonLayout = new QVBoxLayout;
+        searchButtonLayout->addWidget(titleSearchPushButton);
+        searchButtonLayout->addItem(vspacer);
 
-    titleHBoxLayout = new QHBoxLayout;
-    titleHBoxLayout->addLayout(titleFormLayout);
-    titleHBoxLayout->addLayout(searchButtonLayout);
+        titleHBoxLayout = new QHBoxLayout;
+        titleHBoxLayout->addLayout(titleFormLayout);
+        titleHBoxLayout->addLayout(searchButtonLayout);
+    }
+    //데이터 표시영역(WebView 영역) 생성
+    {
+        //    bodyTextEdit = new QPlainTextEdit();
+        //    bodyTextEdit->setMinimumHeight(300);
+        //    bodyTextEdit->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
 
-//    bodyTextEdit = new QPlainTextEdit();
-//    bodyTextEdit->setMinimumHeight(300);
-//    bodyTextEdit->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+        bodyWebView = new QWebView;
+        bodyWebView->setMinimumHeight(100);
+        bodyWebView->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
 
-    bodyWebView = new QWebView;
-    bodyWebView->setMinimumHeight(100);
-    bodyWebView->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
+        QString CurDir =  qApp->applicationDirPath();
+        QUrl url("file:///"+CurDir+"/QtinyMCE/tinymce4_base.html");
+        bodyWebView->setUrl(url);
+        bodyWebView->installEventFilter(this);//웹뷰로부터 오는 이벤트를 받겠다는 뜻
+    }
+    //테이블뷰의 생성
+    {
+        contentTableView = new QTableView;
+        contentTableView->setModel(sqlDb->modelContent);
+        contentTableView->hideColumn(0);
+        contentTableView->hideColumn(1);
+        contentTableView->hideColumn(4);
+        contentTableView->setSelectionMode(QAbstractItemView::SingleSelection);
+        contentTableView->setSelectionBehavior(QAbstractItemView::SelectRows);
+        contentTableView->resizeColumnsToContents();
+        contentTableView->setColumnWidth(2,250);
+        contentTableView->horizontalHeader()->setStretchLastSection(true);
+        contentTableView->setMinimumHeight(150);
+        //contentTableView->sortByColumn(2,Qt::AscendingOrder);
 
-    QString CurDir =  qApp->applicationDirPath();
-    QUrl url("file:///"+CurDir+"/QtinyMCE/tinymce4_base.html");
-    bodyWebView->setUrl(url);
-    bodyWebView->installEventFilter(this);//웹뷰로부터 오는 이벤트를 받겠다는 뜻
+        connect(contentTableView->selectionModel(),
+                SIGNAL(currentRowChanged(const QModelIndex &, const QModelIndex &)),
+                this, SLOT(currentContent(QModelIndex)));
+    }
+    //Content 조작버튼의 생성
+    {
+        addContentButton = new QPushButton(tr("Add"));
+        deleteContentButton = new QPushButton(tr("Delete"));
+        confirmContentButton = new QPushButton(tr("Confirm"));
+        printBodyButton = new QPushButton(tr("Print"));
+        printReportButton = new QPushButton(tr("Report"));
 
-    contentTableView = new QTableView;
-    contentTableView->setModel(sqlDb->modelContent);
-    contentTableView->hideColumn(0);
-    contentTableView->hideColumn(1);
-    contentTableView->hideColumn(4);
-    contentTableView->setSelectionMode(QAbstractItemView::SingleSelection);
-    contentTableView->setSelectionBehavior(QAbstractItemView::SelectRows);
-    contentTableView->resizeColumnsToContents();
-    contentTableView->setColumnWidth(2,250);
-    contentTableView->horizontalHeader()->setStretchLastSection(true);
-    contentTableView->setMinimumHeight(150);
-    //contentTableView->sortByColumn(2,Qt::AscendingOrder);
 
-    connect(contentTableView->selectionModel(),
-            SIGNAL(currentRowChanged(const QModelIndex &, const QModelIndex &)),
-            this, SLOT(currentContent()));
-
-    addContentButton = new QPushButton(tr("Add"));
-    deleteContentButton = new QPushButton(tr("Delete"));
-    confirmContentButton = new QPushButton(tr("Confirm"));
-    printBodyButton = new QPushButton(tr("Print"));
-    printReportButton = new QPushButton(tr("Report"));
-
-    contentDialogButtonBox = new QDialogButtonBox;
-    contentDialogButtonBox->addButton(addContentButton, QDialogButtonBox::ActionRole);
-    contentDialogButtonBox->addButton(deleteContentButton, QDialogButtonBox::ActionRole);
-    contentDialogButtonBox->addButton(confirmContentButton, QDialogButtonBox::ActionRole);
-    contentDialogButtonBox->addButton(printBodyButton,QDialogButtonBox::ActionRole);
-    contentDialogButtonBox->addButton(printReportButton, QDialogButtonBox::ActionRole);
-
+        contentDialogButtonBox = new QDialogButtonBox;
+        contentDialogButtonBox->addButton(addContentButton, QDialogButtonBox::ActionRole);
+        contentDialogButtonBox->addButton(deleteContentButton, QDialogButtonBox::ActionRole);
+        contentDialogButtonBox->addButton(confirmContentButton, QDialogButtonBox::ActionRole);
+        contentDialogButtonBox->addButton(printBodyButton,QDialogButtonBox::ActionRole);
+        contentDialogButtonBox->addButton(printReportButton, QDialogButtonBox::ActionRole);
+    }
     //조작버튼을 슬롯함수와 연결
-    connect(titleSearchPushButton, SIGNAL(clicked()), this, SLOT(searchContent()));
-    connect(addContentButton, SIGNAL(clicked()), this, SLOT(addContent()));
-    connect(deleteContentButton, SIGNAL(clicked()), this, SLOT(deleteContent()));
-    connect(confirmContentButton, SIGNAL(clicked()), this, SLOT(confirmContent()));
-    connect(printBodyButton,SIGNAL(clicked()), this, SLOT(printBody()));
-    connect(printReportButton,SIGNAL(clicked()), this, SLOT(printReport()));
-
+    {
+        connect(titleSearchPushButton, SIGNAL(clicked()), this, SLOT(searchContent()));
+        connect(addContentButton, SIGNAL(clicked()), this, SLOT(addContent()));
+        connect(deleteContentButton, SIGNAL(clicked()), this, SLOT(deleteContent()));
+        connect(confirmContentButton, SIGNAL(clicked()), this, SLOT(confirmContent()));
+        connect(printBodyButton,SIGNAL(clicked()), this, SLOT(printBody()));
+        connect(printReportButton,SIGNAL(clicked()), this, SLOT(printReport()));
+    }
     //생성된 요소를 레이아웃에 담는다.
-    contentPanelLayout = new QVBoxLayout;
-    contentPanelLayout->addLayout(titleHBoxLayout);
-//  contentPanelLayout->addWidget(bodyTextEdit);
-    contentPanelLayout->addWidget(bodyWebView);
-    contentPanelLayout->addWidget(contentTableView);
-    contentPanelLayout->addWidget(contentDialogButtonBox);
-
+    {
+        contentPanelLayout = new QVBoxLayout;
+        contentPanelLayout->addLayout(titleHBoxLayout);
+        //  contentPanelLayout->addWidget(bodyTextEdit);
+        contentPanelLayout->addWidget(bodyWebView);
+        contentPanelLayout->addWidget(contentTableView);
+        contentPanelLayout->addWidget(contentDialogButtonBox);
+    }
     //레이아웃을 프레임에 붙인다.
     contentPanel->setLayout(contentPanelLayout);
 
@@ -540,10 +560,10 @@ void MainForm::searchContent()
     QSortFilterProxyModel *proxyModel = new QSortFilterProxyModel;
     proxyModel->setSourceModel(model);
     contentTableView->setModel(proxyModel);
-    contentTableView->show();
     proxyModel->sort(2,Qt::DescendingOrder);
+    contentTableView->show();
 
-    //여기서 막힘. 테이블에서 보이기는 하는데 테이블을 클릭하면 currentRowChanged시스널이 발생하지 않음
+    //여기서 막힘. 테이블에서 보이기는 하는데 테이블을 클릭하면 currentRowChanged시그널이 발생하지 않음
 
 }
 
@@ -615,9 +635,8 @@ void MainForm::confirmContent()
     QUrl url("file:///"+CurDir+"/QtinyMCE/tinymce4_base.html");
     bodyWebView->setUrl(url);
 }
-void MainForm::currentContent(){
-    QMessageBox::information(this, "dkdkd", "시작");
-    int row = contentTableView->currentIndex().row();
+void MainForm::currentContent(QModelIndex index){
+    int row = index.row();
     sqlDb->mapperContent->setCurrentIndex(row);
     //replace처리를 하지 않으면 개행문자에서 출력이 잘린다(multiline 처리)
     QString bodyString;

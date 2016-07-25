@@ -98,11 +98,11 @@ static const uint qt_meta_data_MainForm[] = {
       14,    0,  112,    2, 0x08 /* Private */,
       15,    0,  113,    2, 0x08 /* Private */,
       16,    0,  114,    2, 0x08 /* Private */,
-      17,    0,  115,    2, 0x08 /* Private */,
-      18,    0,  116,    2, 0x08 /* Private */,
-      19,    1,  117,    2, 0x08 /* Private */,
-      21,    0,  120,    2, 0x08 /* Private */,
-      22,    4,  121,    2, 0x08 /* Private */,
+      17,    1,  115,    2, 0x08 /* Private */,
+      18,    0,  118,    2, 0x08 /* Private */,
+      19,    1,  119,    2, 0x08 /* Private */,
+      21,    0,  122,    2, 0x08 /* Private */,
+      22,    4,  123,    2, 0x08 /* Private */,
 
  // slots: parameters
     QMetaType::Void,
@@ -117,7 +117,7 @@ static const uint qt_meta_data_MainForm[] = {
     QMetaType::Void,
     QMetaType::Void,
     QMetaType::Void,
-    QMetaType::Void,
+    QMetaType::Void, QMetaType::QModelIndex,    2,
     QMetaType::Void,
     QMetaType::Void, 0x80000000 | 20,    2,
     QMetaType::Void,
@@ -144,7 +144,7 @@ void MainForm::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int _id, vo
         case 9: _t->addContent(); break;
         case 10: _t->deleteContent(); break;
         case 11: _t->confirmContent(); break;
-        case 12: _t->currentContent(); break;
+        case 12: _t->currentContent((*reinterpret_cast< QModelIndex(*)>(_a[1]))); break;
         case 13: _t->printBody(); break;
         case 14: _t->slotPrint((*reinterpret_cast< QPrinter*(*)>(_a[1]))); break;
         case 15: _t->printReport(); break;

@@ -47,7 +47,7 @@ private slots:
     void addContent();
     void deleteContent();
     void confirmContent();
-    void currentContent();
+    void currentContent(QModelIndex);
     void printBody(); //현재 내용을 출력
     void slotPrint(QPrinter *);//printBody()에서 다시 호출
     void printReport(); //리포트 생성
