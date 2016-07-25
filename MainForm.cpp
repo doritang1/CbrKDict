@@ -142,32 +142,32 @@ void MainForm::createContentPanel()
     titleLabel->setContentsMargins(0,5,0,0); // 이 값을 안주면 라벨의 텍스트가 약간 위쪽에 있게 됨
     titleLineEdit = new QLineEdit;
 
-//    QLabel *titleLabel01 = new QLabel(tr("①"));
-//    titleLabel01->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
-//    titleLabel01->setContentsMargins(0,5,0,0); // 이 값을 안주면 라벨의 텍스트가 약간 위쪽에 있게 됨
-//    QLineEdit *titleLineEdit01 = new QLineEdit;
+    QLabel *titleLabel01 = new QLabel(tr("①"));
+    titleLabel01->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
+    titleLabel01->setContentsMargins(0,5,0,0); // 이 값을 안주면 라벨의 텍스트가 약간 위쪽에 있게 됨
+    QLineEdit *titleLineEdit01 = new QLineEdit;
 
-//    QLabel *titleLabel02 = new QLabel(tr("②"));
-//    titleLabel02->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
-//    titleLabel02->setContentsMargins(0,5,0,0); // 이 값을 안주면 라벨의 텍스트가 약간 위쪽에 있게 됨
-//    QLineEdit *titleLineEdit02 = new QLineEdit;
+    QLabel *titleLabel02 = new QLabel(tr("②"));
+    titleLabel02->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
+    titleLabel02->setContentsMargins(0,5,0,0); // 이 값을 안주면 라벨의 텍스트가 약간 위쪽에 있게 됨
+    QLineEdit *titleLineEdit02 = new QLineEdit;
 
-//    QLabel *titleLabel03 = new QLabel(tr("③"));
-//    titleLabel03->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
-//    titleLabel03->setContentsMargins(0,5,0,0); // 이 값을 안주면 라벨의 텍스트가 약간 위쪽에 있게 됨
-//    QLineEdit *titleLineEdit03 = new QLineEdit;
+    QLabel *titleLabel03 = new QLabel(tr("③"));
+    titleLabel03->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
+    titleLabel03->setContentsMargins(0,5,0,0); // 이 값을 안주면 라벨의 텍스트가 약간 위쪽에 있게 됨
+    QLineEdit *titleLineEdit03 = new QLineEdit;
 
-//    QLabel *titleLabel04 = new QLabel(tr("④"));
-//    titleLabel04->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
-//    titleLabel04->setContentsMargins(0,5,0,0); // 이 값을 안주면 라벨의 텍스트가 약간 위쪽에 있게 됨
-//    QLineEdit *titleLineEdit04 = new QLineEdit;
+    QLabel *titleLabel04 = new QLabel(tr("④"));
+    titleLabel04->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
+    titleLabel04->setContentsMargins(0,5,0,0); // 이 값을 안주면 라벨의 텍스트가 약간 위쪽에 있게 됨
+    QLineEdit *titleLineEdit04 = new QLineEdit;
 
     titleFormLayout = new QFormLayout;
     titleFormLayout->addRow(titleLabel,titleLineEdit);
-//    titleFormLayout->addRow(titleLabel01, titleLineEdit01);
-//    titleFormLayout->addRow(titleLabel02, titleLineEdit02);
-//    titleFormLayout->addRow(titleLabel03, titleLineEdit03);
-//    titleFormLayout->addRow(titleLabel04, titleLineEdit04);
+    titleFormLayout->addRow(titleLabel01, titleLineEdit01);
+    titleFormLayout->addRow(titleLabel02, titleLineEdit02);
+    titleFormLayout->addRow(titleLabel03, titleLineEdit03);
+    titleFormLayout->addRow(titleLabel04, titleLineEdit04);
 
     titleSearchPushButton = new QPushButton(tr("&Search"));
     titleSearchPushButton->setSizePolicy(QSizePolicy::Maximum,QSizePolicy::Maximum);
@@ -526,23 +526,25 @@ void MainForm::confirmCategory()
 //Content 데이터 조작 함수들
 void MainForm::searchContent()
 {
-
     QString target("%"+titleLineEdit->text()+"%");
     QSqlQuery qryFilter;
-    QString qryStrFilter = "SELECT colTitle, colBody FROM tblContent WHERE colTitle LIKE :target";
+    QString qryStrFilter = "SELECT * FROM tblContent WHERE colTitle LIKE :target";
     qryFilter.prepare(qryStrFilter);
     qryFilter.bindValue(":target", target);
+    qryFilter.exec();
 
-    if(!qryFilter.exec()){
-        // Error Handling, check query.lastError(), probably return
-        qDebug() << qryFilter.lastError().text();
-    } else {
-        QString str;
-        while(qryFilter.next()){
-            str = str + "\n" + qryFilter.value("colTitle").toString();
-        }
-        QMessageBox::information(this,"Sorry~~", str);
-    }
+    model = new QSqlQueryModel;
+    model->setQuery(qryFilter);
+
+    //sorting등을 담당하는 모델
+    QSortFilterProxyModel *proxyModel = new QSortFilterProxyModel;
+    proxyModel->setSourceModel(model);
+    contentTableView->setModel(proxyModel);
+    contentTableView->show();
+    proxyModel->sort(2,Qt::DescendingOrder);
+
+    //여기서 막힘. 테이블에서 보이기는 하는데 테이블을 클릭하면 currentRowChanged시스널이 발생하지 않음
+
 }
 
 void MainForm::addContent()
@@ -614,6 +616,7 @@ void MainForm::confirmContent()
     bodyWebView->setUrl(url);
 }
 void MainForm::currentContent(){
+    QMessageBox::information(this, "dkdkd", "시작");
     int row = contentTableView->currentIndex().row();
     sqlDb->mapperContent->setCurrentIndex(row);
     //replace처리를 하지 않으면 개행문자에서 출력이 잘린다(multiline 처리)

@@ -116,6 +116,7 @@ private:
     //기타
     QPrinter *prntDevice;
     QPrintPreviewDialog *prntPreviewDialog;
+    QSqlQueryModel *model;
 };
 
 #endif // MAINFORM_H
