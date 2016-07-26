@@ -44,11 +44,6 @@ MainForm::~MainForm()
 //Category를 표시할 패널을 생성한다.
 void MainForm::createCategoryPanel()
 {
-    //프레임을 생성한다.
-    categoryPanel = new QFrame;
-    categoryPanel->setFrameStyle(QFrame::Panel|QFrame::Sunken);
-
-    /*프레임 안에 나타낼 각종 요소를 생성한다.*/
 
     //리스트뷰1 생성
     {
@@ -93,10 +88,6 @@ void MainForm::createCategoryPanel()
                 SIGNAL(currentRowChanged(const QModelIndex &, const QModelIndex &)),
                 this, SLOT(updateContentPanel()));
     }
-    //어떤 컨트롤이 포커스를 받았는지 알려주는 시그널과 이를 받아 컨트롤의 이름에 대한 색인을 저장하는 슬롯함수를 연결
-    connect(qApp, SIGNAL(focusChanged(QWidget*,QWidget*)),
-      SLOT(focusChanged(QWidget*,QWidget*)));
-
     //그리드 레이아웃 생성후 리스트뷰들 추가
     {
         categoryGridLayout = new QGridLayout;
@@ -127,26 +118,28 @@ void MainForm::createCategoryPanel()
         connect(deleteCategoryButton, SIGNAL(clicked()), this, SLOT(deleteCategory()));
         connect(confirmCategoryButton, SIGNAL(clicked()), this, SLOT(confirmCategory()));
     }
-
     //생성된 요소를 레이아웃에 담는다.
-    categoryPanelLayout = new QVBoxLayout;
-    categoryPanelLayout->addLayout(categoryGridLayout);
-    categoryPanelLayout->addWidget(categoryDialogButtonBox);
+    {
+        categoryPanelLayout = new QVBoxLayout;
+        categoryPanelLayout->addLayout(categoryGridLayout);
+        categoryPanelLayout->addWidget(categoryDialogButtonBox);
+    }
+    //프레임을 생성하여 레이아웃을 프레임에 붙인다.
+    {
+        categoryPanel = new QFrame;
+        categoryPanel->setFrameStyle(QFrame::Panel|QFrame::Sunken);
+        categoryPanel->setLayout(categoryPanelLayout);
+    }
 
-    //레이아웃을 프레임에 붙인다.
-    categoryPanel->setLayout(categoryPanelLayout);
+    //어떤 컨트롤이 포커스를 받았는지 알려주는 시그널과 이를 받아 컨트롤의 이름에 대한 색인을 반환하는 슬롯함수를 연결
+    connect(qApp, SIGNAL(focusChanged(QWidget*,QWidget*)),
+      SLOT(focusChanged(QWidget*,QWidget*)));
 }
 
 //Content를 표시할 패널을 생성한다.
 void MainForm::createContentPanel()
 {
-    //프레임을 생성한다.
-    contentPanel = new QFrame;
-    contentPanel->setFrameStyle(QFrame::Panel|QFrame::Sunken);
-
-    /*프레임 안에 나타낼 각종 요소를 생성한다.*/
-
-    //타이틀을 나타낼 요소를 생성
+    //타이틀영역 요소를 생성
     {
         titleLabel = new QLabel(tr("Question"));
         titleLabel->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
@@ -225,7 +218,8 @@ void MainForm::createContentPanel()
 
         connect(contentTableView->selectionModel(),
                 SIGNAL(currentRowChanged(const QModelIndex &, const QModelIndex &)),
-                this, SLOT(currentContent(QModelIndex)));
+                this, SLOT(contentFromTableModel(QModelIndex)));
+        //contentTableView->show();
     }
     //Content 조작버튼의 생성
     {
@@ -261,10 +255,14 @@ void MainForm::createContentPanel()
         contentPanelLayout->addWidget(contentTableView);
         contentPanelLayout->addWidget(contentDialogButtonBox);
     }
-    //레이아웃을 프레임에 붙인다.
-    contentPanel->setLayout(contentPanelLayout);
+    //프레임을 생성하여 프레임에 레이아웃을 붙인다.
+    {
+        contentPanel = new QFrame;
+        contentPanel->setFrameStyle(QFrame::Panel|QFrame::Sunken);
+        contentPanel->setLayout(contentPanelLayout);
+    }
 
-    //생성된 요소에 데이터를 연결함
+    //생성된 요소와 데이터를 연동함
     sqlDb->mapperContent->addMapping(titleLineEdit, 2);
     //sqlDb->mapperContent->addMapping(bodyTextEdit, 3);
 
@@ -285,6 +283,7 @@ void MainForm::updateCategoryLevel2ListView()
         sqlDb->modelCategoryLevel2->setFilter("idLevel1 = -1");
     }
     sqlDb->modelCategoryLevel2->select();
+    changeModel(sqlDb->modelContent);
 }
 
 //첫번째 또는 두번째 Category 선택에 따라 세번째 Category 변경
@@ -299,6 +298,7 @@ void MainForm::updateCategoryLevel3ListView()
         sqlDb->modelCategoryLevel3->setFilter("idLevel2 = -1");
     }
     sqlDb->modelCategoryLevel3->select();
+    changeModel(sqlDb->modelContent);
 }
 
 //첫번째, 두번째 및 세번째 Category 선택에 따라 Content 패널 변경
@@ -320,12 +320,12 @@ void MainForm::updateContentPanel()
                 sqlDb->modelContent->setFilter("colCategoryIdLevel3 = -1");
             }
             sqlDb->modelContent->select();
+            changeModel(sqlDb->modelContent);
+//            sqlDb->mapperContent->setCurrentIndex(0);
+//            //replace처리를 하지 않으면 개행문자에서 출력이 잘린다(multiline 처리)
 
-            sqlDb->mapperContent->setCurrentIndex(0);
-            //replace처리를 하지 않으면 개행문자에서 출력이 잘린다(multiline 처리)
-
-            bodyString = sqlDb->modelContent->record(0).value("colBody").toString();
-            bodyWebView->page()->mainFrame()->evaluateJavaScript(QString("tinyMCE.activeEditor.setContent('%1')").arg(bodyString).replace("\n","\\n"));
+//            bodyString = sqlDb->modelContent->record(0).value("colBody").toString();
+//            bodyWebView->page()->mainFrame()->evaluateJavaScript(QString("tinyMCE.activeEditor.setContent('%1')").arg(bodyString).replace("\n","\\n"));
             break;
         case 2:
             int idLevel2;
@@ -338,12 +338,12 @@ void MainForm::updateContentPanel()
                 sqlDb->modelContent->setFilter("colCategoryIdLevel2 = -1");
             }
             sqlDb->modelContent->select();
+            changeModel(sqlDb->modelContent);
+//            sqlDb->mapperContent->setCurrentIndex(0);
+//            //replace처리를 하지 않으면 개행문자에서 출력이 잘린다(multiline 처리)
 
-            sqlDb->mapperContent->setCurrentIndex(0);
-            //replace처리를 하지 않으면 개행문자에서 출력이 잘린다(multiline 처리)
-
-            bodyString = sqlDb->modelContent->record(0).value("colBody").toString();
-            bodyWebView->page()->mainFrame()->evaluateJavaScript(QString("tinyMCE.activeEditor.setContent('%1')").arg(bodyString).replace("\n","\\n"));
+//            bodyString = sqlDb->modelContent->record(0).value("colBody").toString();
+//            bodyWebView->page()->mainFrame()->evaluateJavaScript(QString("tinyMCE.activeEditor.setContent('%1')").arg(bodyString).replace("\n","\\n"));
             break;
     }
 }
@@ -548,25 +548,53 @@ void MainForm::searchContent()
 {
     QString target("%"+titleLineEdit->text()+"%");
     QSqlQuery qryFilter;
-    QString qryStrFilter = "SELECT * FROM tblContent WHERE colTitle LIKE :target";
-    qryFilter.prepare(qryStrFilter);
+    QString qryStr = "SELECT * FROM tblContent WHERE colTitle LIKE :target";
+    qryFilter.prepare(qryStr);
     qryFilter.bindValue(":target", target);
     qryFilter.exec();
 
-    model = new QSqlQueryModel;
-    model->setQuery(qryFilter);
+    queryModel = new QSqlQueryModel;
+    queryModel->setQuery(qryFilter);
 
-    //sorting등을 담당하는 모델
-    QSortFilterProxyModel *proxyModel = new QSortFilterProxyModel;
-    proxyModel->setSourceModel(model);
-    contentTableView->setModel(proxyModel);
-    proxyModel->sort(2,Qt::DescendingOrder);
-    contentTableView->show();
-
-    //여기서 막힘. 테이블에서 보이기는 하는데 테이블을 클릭하면 currentRowChanged시그널이 발생하지 않음
-
+//    //sorting등을 담당하는 모델
+//    proxyModel = new QSortFilterProxyModel;
+//    proxyModel->setSourceModel(queryModel);
+//    contentTableView->setModel(proxyModel);
+//    //proxyModel->sort(2,Qt::DescendingOrder);
+    changeModel(queryModel);
 }
+void MainForm::changeModel(QSqlQueryModel *model)
+{
+    contentTableView->setModel(model);
 
+    sqlDb->mapperContent->clearMapping();
+    sqlDb->mapperContent->setModel(model);
+    sqlDb->mapperContent->addMapping(titleLineEdit, 2);
+
+    QString CurDir =  qApp->applicationDirPath();
+    QUrl url("file:///"+CurDir+"/QtinyMCE/tinymce4_base.html");
+    bodyWebView->setUrl(url);
+
+    connect(contentTableView->selectionModel(),
+            SIGNAL(currentRowChanged(const QModelIndex &, const QModelIndex &)),
+            this, SLOT(contentFromQueryModel(QModelIndex)));
+}
+void MainForm::changeModel(QSqlTableModel *model)
+{
+    contentTableView->setModel(model);
+
+    sqlDb->mapperContent->clearMapping();
+    sqlDb->mapperContent->setModel(model);
+    sqlDb->mapperContent->addMapping(titleLineEdit, 2);
+
+    QString CurDir =  qApp->applicationDirPath();
+    QUrl url("file:///"+CurDir+"/QtinyMCE/tinymce4_base.html");
+    bodyWebView->setUrl(url);
+
+    connect(contentTableView->selectionModel(),
+            SIGNAL(currentRowChanged(QModelIndex,QModelIndex)),
+            this,SLOT(contentFromTableModel(QModelIndex)));
+}
 void MainForm::addContent()
 {
     //sqlDb->mapperContent->submit();//만약 현재 Content를 편집중에 Add버튼을 눌렀다면 입력중이었던 데이터는 저장해야 함
@@ -635,7 +663,8 @@ void MainForm::confirmContent()
     QUrl url("file:///"+CurDir+"/QtinyMCE/tinymce4_base.html");
     bodyWebView->setUrl(url);
 }
-void MainForm::currentContent(QModelIndex index){
+void MainForm::contentFromTableModel(QModelIndex index)
+{
     int row = index.row();
     sqlDb->mapperContent->setCurrentIndex(row);
     //replace처리를 하지 않으면 개행문자에서 출력이 잘린다(multiline 처리)
@@ -643,6 +672,16 @@ void MainForm::currentContent(QModelIndex index){
     bodyString = sqlDb->modelContent->record(row).value("colBody").toString();
     bodyWebView->page()->mainFrame()->evaluateJavaScript(QString("tinyMCE.activeEditor.setContent('%1')").arg(bodyString).replace("\n","\\n"));
 }
+void MainForm::contentFromQueryModel(QModelIndex index)
+{
+    int row = index.row();
+    sqlDb->mapperContent->setCurrentIndex(row);
+    //replace처리를 하지 않으면 개행문자에서 출력이 잘린다(multiline 처리)
+    QString bodyString;
+    bodyString = queryModel->record(row).value("colBody").toString();
+    bodyWebView->page()->mainFrame()->evaluateJavaScript(QString("tinyMCE.activeEditor.setContent('%1')").arg(bodyString).replace("\n","\\n"));
+}
+//본문 인쇄
 void MainForm::printBody()
 {
     prntDevice = new QPrinter();
@@ -668,6 +707,7 @@ void MainForm::slotPrint(QPrinter *printer)
     printer->setPageMargins(m);
     webviewPrint->print(printer);
 }
+//리포트 인쇄
 void MainForm::printReport()
 {
     QString fileName = "printContentRpt.xml";

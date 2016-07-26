@@ -47,18 +47,19 @@ private slots:
     void addContent();
     void deleteContent();
     void confirmContent();
-    void currentContent(QModelIndex);
+    void contentFromTableModel(QModelIndex);
+    void contentFromQueryModel(QModelIndex);
     void printBody(); //현재 내용을 출력
     void slotPrint(QPrinter *);//printBody()에서 다시 호출
     void printReport(); //리포트 생성
     //리포트에 데이터 연결
     void setValue(const int recNo, const QString paramName, QVariant &paramValue, const int reportPage);
-
 private:
     //화면 구성요소 생성 함수
     void createCategoryPanel();
     void createContentPanel();
-
+    void changeModel(QSqlQueryModel *);
+    void changeModel(QSqlTableModel *);
     //현재 포커스를 받은 컨트롤의 색인을 저장하는 변수
     int focusedWidget;
 
@@ -116,7 +117,8 @@ private:
     //기타
     QPrinter *prntDevice;
     QPrintPreviewDialog *prntPreviewDialog;
-    QSqlQueryModel *model;
+    QSqlQueryModel *queryModel;
+    QSortFilterProxyModel *proxyModel;
 };
 
 #endif // MAINFORM_H
