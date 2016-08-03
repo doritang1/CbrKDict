@@ -53,6 +53,9 @@ void MainForm::createCategoryPanel()
         categoryLevel1ListView->setModel(sqlDb->modelCategoryLevel1);
         categoryLevel1ListView->setModelColumn(1);
         categoryLevel1ListView->setObjectName("ListView_Level1");
+        categoryLevel1ListView->setFrameShape(QFrame::WinPanel);
+        categoryLevel1ListView->setFrameShadow(QFrame::Plain);
+
         connect(categoryLevel1ListView->selectionModel(),
                 SIGNAL(currentRowChanged(const QModelIndex &, const QModelIndex &)),
                 this, SLOT(updateCategoryLevel2ListView()));
@@ -70,6 +73,9 @@ void MainForm::createCategoryPanel()
         categoryLevel2ListView->setModel(sqlDb->modelCategoryLevel2);
         categoryLevel2ListView->setModelColumn(2);
         categoryLevel2ListView->setObjectName("ListView_Level2");
+        categoryLevel2ListView->setFrameShape(QFrame::WinPanel);
+        categoryLevel2ListView->setFrameShadow(QFrame::Sunken);
+
         connect(categoryLevel2ListView->selectionModel(),
                 SIGNAL(currentRowChanged(const QModelIndex &, const QModelIndex &)),
                 this, SLOT(updateCategoryLevel3ListView()));
@@ -84,6 +90,9 @@ void MainForm::createCategoryPanel()
         categoryLevel3ListView->setModel(sqlDb->modelCategoryLevel3);
         categoryLevel3ListView->setModelColumn(3);
         categoryLevel3ListView->setObjectName("ListView_Level3");
+        categoryLevel3ListView->setFrameShape(QFrame::WinPanel);
+        categoryLevel3ListView->setFrameShadow(QFrame::Sunken);
+
         connect(categoryLevel3ListView->selectionModel(),
                 SIGNAL(currentRowChanged(const QModelIndex &, const QModelIndex &)),
                 this, SLOT(updateContentPanel()));
@@ -144,33 +153,47 @@ void MainForm::createContentPanel()
         titleLabel = new QLabel(tr("Question"));
         titleLabel->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
         titleLabel->setContentsMargins(0,5,0,0); // 이 값을 안주면 라벨의 텍스트가 약간 위쪽에 있게 됨
-        titleLineEdit = new QLineEdit;
+//        titleLineEdit = new QLineEdit;
+        bodyTextEdit = new QPlainTextEdit();
+        bodyTextEdit->setMinimumHeight(50);
+        bodyTextEdit->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
 
-        QLabel *titleLabel01 = new QLabel(tr("①"));
-        titleLabel01->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
-        titleLabel01->setContentsMargins(0,5,0,0); // 이 값을 안주면 라벨의 텍스트가 약간 위쪽에 있게 됨
-        QLineEdit *titleLineEdit01 = new QLineEdit;
+//        titleLabel01 = new QLabel(tr("①"));
+//        titleLabel01->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
+//        titleLabel01->setContentsMargins(0,5,0,0); // 이 값을 안주면 라벨의 텍스트가 약간 위쪽에 있게 됨
+//        titleLineEdit01 = new QLineEdit;
 
-        QLabel *titleLabel02 = new QLabel(tr("②"));
-        titleLabel02->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
-        titleLabel02->setContentsMargins(0,5,0,0); // 이 값을 안주면 라벨의 텍스트가 약간 위쪽에 있게 됨
-        QLineEdit *titleLineEdit02 = new QLineEdit;
+//        titleLabel02 = new QLabel(tr("②"));
+//        titleLabel02->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
+//        titleLabel02->setContentsMargins(0,5,0,0); // 이 값을 안주면 라벨의 텍스트가 약간 위쪽에 있게 됨
+//        titleLineEdit02 = new QLineEdit;
 
-        QLabel *titleLabel03 = new QLabel(tr("③"));
-        titleLabel03->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
-        titleLabel03->setContentsMargins(0,5,0,0); // 이 값을 안주면 라벨의 텍스트가 약간 위쪽에 있게 됨
-        QLineEdit *titleLineEdit03 = new QLineEdit;
+//        titleLabel03 = new QLabel(tr("③"));
+//        titleLabel03->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
+//        titleLabel03->setContentsMargins(0,5,0,0); // 이 값을 안주면 라벨의 텍스트가 약간 위쪽에 있게 됨
+//        titleLineEdit03 = new QLineEdit;
 
-        QLabel *titleLabel04 = new QLabel(tr("④"));
+        titleLabel04 = new QLabel(tr("Answer"));
         titleLabel04->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
         titleLabel04->setContentsMargins(0,5,0,0); // 이 값을 안주면 라벨의 텍스트가 약간 위쪽에 있게 됨
-        QLineEdit *titleLineEdit04 = new QLineEdit;
+        titleLineEdit04 = new QComboBox;
+        titleLineEdit04->setEditable(true);
+        titleLineEdit04->setEditText("-");
+        titleLineEdit04->addItem("O");
+        titleLineEdit04->addItem("X");
+        titleLineEdit04->addItem("①");
+        titleLineEdit04->addItem("②");
+        titleLineEdit04->addItem("③");
+        titleLineEdit04->addItem("④");
+//        QLineEdit *le = new QLineEdit;
+//        titleLineEdit04->setLineEdit(le);
+//        titleLineEdit04->lineEdit()->setPlaceholderText("Select...");
 
         titleFormLayout = new QFormLayout;
-        titleFormLayout->addRow(titleLabel,titleLineEdit);
-        titleFormLayout->addRow(titleLabel01, titleLineEdit01);
-        titleFormLayout->addRow(titleLabel02, titleLineEdit02);
-        titleFormLayout->addRow(titleLabel03, titleLineEdit03);
+        titleFormLayout->addRow(titleLabel, bodyTextEdit);
+//        titleFormLayout->addRow(titleLabel01, titleLineEdit01);
+//        titleFormLayout->addRow(titleLabel02, titleLineEdit02);
+//        titleFormLayout->addRow(titleLabel03, titleLineEdit03);
         titleFormLayout->addRow(titleLabel04, titleLineEdit04);
 
         titleSearchPushButton = new QPushButton(tr("&Search"));
@@ -208,6 +231,7 @@ void MainForm::createContentPanel()
         contentTableView->hideColumn(0);
         contentTableView->hideColumn(1);
         contentTableView->hideColumn(4);
+        contentTableView->hideColumn(5);
         contentTableView->setSelectionMode(QAbstractItemView::SingleSelection);
         contentTableView->setSelectionBehavior(QAbstractItemView::SelectRows);
         contentTableView->resizeColumnsToContents();
@@ -263,7 +287,8 @@ void MainForm::createContentPanel()
     }
 
     //생성된 요소와 데이터를 연동함
-    sqlDb->mapperContent->addMapping(titleLineEdit, 2);
+    sqlDb->mapperContent->addMapping(bodyTextEdit, 2);
+    sqlDb->mapperContent->addMapping(titleLineEdit04,5);
     //sqlDb->mapperContent->addMapping(bodyTextEdit, 3);
 
     //insert QWebView object to javascript.
@@ -304,12 +329,16 @@ void MainForm::updateCategoryLevel3ListView()
 //첫번째, 두번째 및 세번째 Category 선택에 따라 Content 패널 변경
 void MainForm::updateContentPanel()
 {
-    titleLineEdit->clear();
+    bodyTextEdit->clear();
     QModelIndex index;
     QString bodyString;
 
     switch(focusedWidget){
         case 3:
+            categoryLevel1ListView->setFrameShadow(QFrame::Sunken);
+            categoryLevel2ListView->setFrameShadow(QFrame::Sunken);
+            categoryLevel3ListView->setFrameShadow(QFrame::Plain);
+
             int idLevel3;
             index = categoryLevel3ListView->currentIndex();
             if(index.isValid()){
@@ -328,6 +357,10 @@ void MainForm::updateContentPanel()
 //            bodyWebView->page()->mainFrame()->evaluateJavaScript(QString("tinyMCE.activeEditor.setContent('%1')").arg(bodyString).replace("\n","\\n"));
             break;
         case 2:
+            categoryLevel1ListView->setFrameShadow(QFrame::Sunken);
+            categoryLevel2ListView->setFrameShadow(QFrame::Plain);
+            categoryLevel3ListView->setFrameShadow(QFrame::Sunken);
+
             int idLevel2;
             index = categoryLevel2ListView->currentIndex();
             if(index.isValid()){
@@ -344,6 +377,12 @@ void MainForm::updateContentPanel()
 
 //            bodyString = sqlDb->modelContent->record(0).value("colBody").toString();
 //            bodyWebView->page()->mainFrame()->evaluateJavaScript(QString("tinyMCE.activeEditor.setContent('%1')").arg(bodyString).replace("\n","\\n"));
+            break;
+
+        case 1:
+            categoryLevel1ListView->setFrameShadow(QFrame::Plain);
+            categoryLevel2ListView->setFrameShadow(QFrame::Sunken);
+            categoryLevel3ListView->setFrameShadow(QFrame::Sunken);
             break;
     }
 }
@@ -546,7 +585,7 @@ void MainForm::confirmCategory()
 //Content 데이터 조작 함수들
 void MainForm::searchContent()
 {
-    QString target("%"+titleLineEdit->text()+"%");
+    QString target("%"+bodyTextEdit->toPlainText()+"%");
     QSqlQuery qryFilter;
     QString qryStr = "SELECT * FROM tblContent WHERE colTitle LIKE :target";
     qryFilter.prepare(qryStr);
@@ -569,8 +608,10 @@ void MainForm::changeModel(QSqlQueryModel *model)
 
     sqlDb->mapperContent->clearMapping();
     sqlDb->mapperContent->setModel(model);
-    sqlDb->mapperContent->addMapping(titleLineEdit, 2);
+    sqlDb->mapperContent->addMapping(bodyTextEdit, 2);
+    sqlDb->mapperContent->addMapping(titleLineEdit04, 5);
 
+    titleLineEdit04->setEditText("Select...");
     QString CurDir =  qApp->applicationDirPath();
     QUrl url("file:///"+CurDir+"/QtinyMCE/tinymce4_base.html");
     bodyWebView->setUrl(url);
@@ -585,8 +626,10 @@ void MainForm::changeModel(QSqlTableModel *model)
 
     sqlDb->mapperContent->clearMapping();
     sqlDb->mapperContent->setModel(model);
-    sqlDb->mapperContent->addMapping(titleLineEdit, 2);
+    sqlDb->mapperContent->addMapping(bodyTextEdit, 2);
+    sqlDb->mapperContent->addMapping(titleLineEdit04, 5);
 
+    titleLineEdit04->setEditText("Select...");
     QString CurDir =  qApp->applicationDirPath();
     QUrl url("file:///"+CurDir+"/QtinyMCE/tinymce4_base.html");
     bodyWebView->setUrl(url);
@@ -603,12 +646,13 @@ void MainForm::addContent()
     sqlDb->modelContent->insertRow(row);
     sqlDb->mapperContent->setCurrentIndex(row);
 
-    titleLineEdit->clear();
-    //bodyTextEdit->clear();
+    bodyTextEdit->clear();
+    titleLineEdit04->clearEditText();
+    titleLineEdit04->setEditText("Select...");
     QString CurDir =  qApp->applicationDirPath();
     QUrl url("file:///"+CurDir+"/QtinyMCE/tinymce4_base.html");
     bodyWebView->setUrl(url);
-    titleLineEdit->setFocus();
+    bodyTextEdit->setFocus();
 }
 void MainForm::deleteContent()
 {
@@ -619,6 +663,7 @@ void MainForm::deleteContent()
     //매퍼의 현재 인덱스를 삭제된 바로 다음 행이 되게 하고, 삭제된 행이 마지막 행이었다면 지금의 마지막 행이 현재 인덱스가 되게 한다.
     sqlDb->mapperContent->setCurrentIndex(qMin(row, sqlDb->modelContent->rowCount() - 1));
     //replace처리를 하지 않으면 개행문자에서 출력이 잘린다(multiline 처리)
+    titleLineEdit04->setEditText("Select...");
     QString bodyString;
     bodyString = sqlDb->modelContent->record(qMin(row, sqlDb->modelContent->rowCount() - 1)).value("colBody").toString();
     bodyWebView->page()->mainFrame()->evaluateJavaScript(QString("tinyMCE.activeEditor.setContent('%1')").arg(bodyString).replace("\n","\\n"));
@@ -646,10 +691,12 @@ void MainForm::confirmContent()
     QModelIndex idxTitle = sqlDb->modelContent->index(row,2);
     QModelIndex idxBody = sqlDb->modelContent->index(row,3);
     QModelIndex idxCategoryIdLevel2 = sqlDb->modelContent->index(row,4);
+    QModelIndex idxAnswer = sqlDb->modelContent->index(row,5);
 
     sqlDb->modelContent->setData(idxCategoryIdLevel3, idLevel3);
-    sqlDb->modelContent->setData(idxTitle, titleLineEdit->text());
+    sqlDb->modelContent->setData(idxTitle, bodyTextEdit->toPlainText());
     sqlDb->modelContent->setData(idxCategoryIdLevel2, idLevel2);
+    sqlDb->modelContent->setData(idxAnswer, titleLineEdit04->currentText());
     //sqlDb->modelContent->setData(idxBody,bodyTextEdit->toPlainText());
     QString bodyString;
     bodyString = bodyWebView->page()->mainFrame()->evaluateJavaScript("tinyMCE.activeEditor.getContent();").toString();
@@ -657,8 +704,8 @@ void MainForm::confirmContent()
 
     sqlDb->modelContent->submitAll();
 
-    titleLineEdit->clear();
-    //bodyTextEdit->clear();
+    bodyTextEdit->clear();
+    titleLineEdit04->setEditText("Select...");
     QString CurDir =  qApp->applicationDirPath();
     QUrl url("file:///"+CurDir+"/QtinyMCE/tinymce4_base.html");
     bodyWebView->setUrl(url);
@@ -724,6 +771,8 @@ void MainForm::setValue(const int recNo, const QString paramName, QVariant &para
         paramValue = sqlDb->modelContent->record(recNo).value("colTitle").toString();
     if (paramName == "body")
         paramValue = sqlDb->modelContent->record(recNo).value("colBody").toString();
+    if (paramName == "answer")
+        paramValue = sqlDb->modelContent->record(recNo).value("colAnswer").toString();
 }
 
 //키입력을 감시해서 다른 행동을 하게 하기 위한 일종의 후킹함수

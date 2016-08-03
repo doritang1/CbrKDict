@@ -91,9 +91,17 @@ private:
             QHBoxLayout *titleHBoxLayout;
                 QFormLayout *titleFormLayout;
                     QLabel *titleLabel;
-                    QLineEdit *titleLineEdit;
+                    //QLineEdit *titleLineEdit;
+                    QPlainTextEdit *bodyTextEdit;
+                    QLabel *titleLabel01;
+                    QLineEdit *titleLineEdit01;
+                    QLabel *titleLabel02;
+                    QLineEdit *titleLineEdit02;
+                    QLabel *titleLabel03;
+                    QLineEdit *titleLineEdit03;
+                    QLabel *titleLabel04;
+                    QComboBox *titleLineEdit04;
                 QPushButton *titleSearchPushButton;
-            //QPlainTextEdit *bodyTextEdit;
             QWebView *bodyWebView;
             QTableView *contentTableView;
             //조작버튼들(Content 패널용)
