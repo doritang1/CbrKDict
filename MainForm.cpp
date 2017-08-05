@@ -2,7 +2,7 @@
 #include <QApplication>
 #include <QMessageBox>
 #include <QHeaderView>
-#include <QWebFrame>
+#include <QWebEnginePage>
 
 MainForm::MainForm(QWidget *parent)
     : QWidget(parent)
@@ -181,10 +181,10 @@ void MainForm::createContentPanel()
         titleLineEdit04->setEditText("-");
         titleLineEdit04->addItem("O");
         titleLineEdit04->addItem("X");
-        titleLineEdit04->addItem("①");
-        titleLineEdit04->addItem("②");
-        titleLineEdit04->addItem("③");
-        titleLineEdit04->addItem("④");
+        titleLineEdit04->addItem("1)");
+        titleLineEdit04->addItem("2)");
+        titleLineEdit04->addItem("3)");
+        titleLineEdit04->addItem("4)");
 //        QLineEdit *le = new QLineEdit;
 //        titleLineEdit04->setLineEdit(le);
 //        titleLineEdit04->lineEdit()->setPlaceholderText("Select...");
@@ -215,7 +215,7 @@ void MainForm::createContentPanel()
         //    bodyTextEdit->setMinimumHeight(300);
         //    bodyTextEdit->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
 
-        bodyWebView = new QWebView;
+        bodyWebView = new QWebEngineView;
         bodyWebView->setMinimumHeight(100);
         bodyWebView->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
 
@@ -667,6 +667,7 @@ void MainForm::deleteContent()
     QString bodyString;
     bodyString = sqlDb->modelContent->record(qMin(row, sqlDb->modelContent->rowCount() - 1)).value("colBody").toString();
     bodyWebView->page()->mainFrame()->evaluateJavaScript(QString("tinyMCE.activeEditor.setContent('%1')").arg(bodyString).replace("\n","\\n"));
+    bodyWebView->page()->runJavaScript(QString("tinyMCE.activeEditor.setContent('%1')").arg(bodyString).replace("\n","\\n"));
 }
 void MainForm::confirmContent()
 {
@@ -698,11 +699,12 @@ void MainForm::confirmContent()
     sqlDb->modelContent->setData(idxCategoryIdLevel2, idLevel2);
     sqlDb->modelContent->setData(idxAnswer, titleLineEdit04->currentText());
     //sqlDb->modelContent->setData(idxBody,bodyTextEdit->toPlainText());
-    QString bodyString;
-    bodyString = bodyWebView->page()->mainFrame()->evaluateJavaScript("tinyMCE.activeEditor.getContent();").toString();
-    sqlDb->modelContent->setData(idxBody, bodyString);
-
-    sqlDb->modelContent->submitAll();
+    //비동기식이므로 콜백함수를 넣어 준다.
+    bodyWebView->page()->runJavaScript(
+                "tinyMCE.activeEditor.getContent();",
+                [this, idxBody](const QVariant &result){this->sqlDb->modelContent->setData(idxBody, result.toString()); sqlDb->modelContent->submitAll();});
+    //sqlDb->modelContent->setData(idxBody, bodyString);
+    //sqlDb->modelContent->submitAll();
 
     bodyTextEdit->clear();
     titleLineEdit04->setEditText("Select...");
@@ -717,7 +719,7 @@ void MainForm::contentFromTableModel(QModelIndex index)
     //replace처리를 하지 않으면 개행문자에서 출력이 잘린다(multiline 처리)
     QString bodyString;
     bodyString = sqlDb->modelContent->record(row).value("colBody").toString();
-    bodyWebView->page()->mainFrame()->evaluateJavaScript(QString("tinyMCE.activeEditor.setContent('%1')").arg(bodyString).replace("\n","\\n"));
+    bodyWebView->page()->runJavaScript(QString("tinyMCE.activeEditor.setContent('%1')").arg(bodyString).replace("\n","\\n"));
 }
 void MainForm::contentFromQueryModel(QModelIndex index)
 {
@@ -726,7 +728,7 @@ void MainForm::contentFromQueryModel(QModelIndex index)
     //replace처리를 하지 않으면 개행문자에서 출력이 잘린다(multiline 처리)
     QString bodyString;
     bodyString = queryModel->record(row).value("colBody").toString();
-    bodyWebView->page()->mainFrame()->evaluateJavaScript(QString("tinyMCE.activeEditor.setContent('%1')").arg(bodyString).replace("\n","\\n"));
+    bodyWebView->page()->runJavaScript(QString("tinyMCE.activeEditor.setContent('%1')").arg(bodyString).replace("\n","\\n"));
 }
 //본문 인쇄
 void MainForm::printBody()
@@ -739,11 +741,12 @@ void MainForm::printBody()
 }
 void MainForm::slotPrint(QPrinter *printer)
 {
-    QWebView *webviewPrint = new QWebView();
+    QWebEngineView *webviewPrint = new QWebEngineView();
     webviewPrint->setFixedSize(QSize(printer->width(),printer->height()));
-    QString printString;
-    printString = bodyWebView->page()->mainFrame()->evaluateJavaScript("tinyMCE.activeEditor.getContent();").toString();
-    webviewPrint->setHtml(printString);
+    //QString printString;
+    bodyWebView->page()->runJavaScript("tinyMCE.activeEditor.getContent();",
+                                       [webviewPrint](const QVariant &result){webviewPrint->setHtml(result.toString());});
+    //webviewPrint->setHtml(printString);
    //webviewPrint->setHtml(ui->webViewBody->page()->mainFrame()->toHtml());
 
     printer->setPaperSize(QPrinter::A4);
@@ -752,8 +755,16 @@ void MainForm::slotPrint(QPrinter *printer)
     printer->setResolution(120);  // DPI 세팅 Default로 96으로 되어있음
     QMargins m(25,50,25,50);
     printer->setPageMargins(m);
-    webviewPrint->print(printer);
+    webviewPrint->page()->print(printer, [this](const QVariant &result){this->slotHandlePagePrinted(result.toBool());});
 }
+void MainForm::slotHandlePagePrinted(bool result)
+{
+    Q_UNUSED(result);
+
+    delete prntDevice;
+    prntDevice = nullptr;
+}
+
 //리포트 인쇄
 void MainForm::printReport()
 {
