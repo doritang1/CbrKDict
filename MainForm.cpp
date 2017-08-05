@@ -666,7 +666,7 @@ void MainForm::deleteContent()
     titleLineEdit04->setEditText("Select...");
     QString bodyString;
     bodyString = sqlDb->modelContent->record(qMin(row, sqlDb->modelContent->rowCount() - 1)).value("colBody").toString();
-    bodyWebView->page()->mainFrame()->evaluateJavaScript(QString("tinyMCE.activeEditor.setContent('%1')").arg(bodyString).replace("\n","\\n"));
+    //bodyWebView->page()->mainFrame()->evaluateJavaScript(QString("tinyMCE.activeEditor.setContent('%1')").arg(bodyString).replace("\n","\\n"));
     bodyWebView->page()->runJavaScript(QString("tinyMCE.activeEditor.setContent('%1')").arg(bodyString).replace("\n","\\n"));
 }
 void MainForm::confirmContent()
