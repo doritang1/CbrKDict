@@ -4,7 +4,7 @@
 #
 #-------------------------------------------------
 
-QT       += sql core gui
+QT       += sql core gui printsupport
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
@@ -13,6 +13,9 @@ TEMPLATE = app
 
 
 SOURCES += main.cpp\
-        MainForm.cpp
+        MainForm.cpp\
+        ckdbengine.cpp
+HEADERS  += MainForm.h\
+        ckdbengine.h
 
-HEADERS  += MainForm.h
+include(../CbrkDict/QtRptProject/QtRPT/QtRPT.pri)
