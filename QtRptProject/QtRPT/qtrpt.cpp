@@ -654,7 +654,7 @@ void QtRPT::drawFields(RptFieldObject *fieldObject, int bandTop, bool draw) {
         }
     }
     if (fieldType == TextRich) {
-        QString txt = fieldObject->value;
+        QString txt = sectionField(fieldObject->parentBand, fieldObject->value, false, false, fieldObject->formatString);
 
         QTextDocument document;
         document.setHtml(txt);
@@ -685,15 +685,32 @@ void QtRPT::drawFields(RptFieldObject *fieldObject, int bandTop, bool draw) {
             block = block.next();
         }
 
-        QRectF rect = QRectF(left_+10, top_, width_-15, height_);
+        QRectF rect =  QRectF(left_+10, top_, width_-15, height_);
         document.setTextWidth( rect.width() );
+
+//        int flags = fieldObject->aligment | Qt::TextDontClip; //getAligment(e);
+//        if (fieldObject->textWrap == 1)
+//            flags = flags | Qt::TextWordWrap;
+
         if (painter->isActive()) {
             painter->save();
             painter->translate( rect.topLeft() );
         }
+
         if (draw) {
             document.drawContents( painter, rect.translated( -rect.topLeft() ) );
+        } else {
+            qreal boundHeight = document.size().height();
+            //쓸 문장의 높이가 영역의 높이보다 클 때
+            if (boundHeight > height_ && fieldObject->autoHeight == 1) {
+                /*To correct adjust and display a height of the band we use a param 'realHeight'.
+                 Currently this param used only to correct a MasterBand. If will be needed, possible
+                 correct also another bands.
+                */
+                fieldObject->parentBand->realHeight = boundHeight/koefRes_h;/*qRound(boundRect.height()/koefRes_h);*/
+            }
         }
+
         if (painter->isActive())
             painter->restore();
     }
@@ -740,15 +757,15 @@ void QtRPT::drawFields(RptFieldObject *fieldObject, int bandTop, bool draw) {
                     m_xlsx->setColumnHidden(col,!fnd);
                     if (fnd) m_xlsx->setColumnWidth(col,10);
                 }*/
-            }
-        } else {
-            QRect boundRect = painter->boundingRect(left_+10,top_,width_-15,height_, flags, txt);
-            if (boundRect.height() > height_ && fieldObject->autoHeight == 1) {
-                /*To correct adjust and display a height of the band we use a param 'realHeight'.
-                 Currently this param used only to correct a MasterBand. If will be needed, possible
-                 correct also another bands.
-                */
-                fieldObject->parentBand->realHeight = qRound(boundRect.height()/koefRes_h);
+            } else {
+                QRect boundRect = painter->boundingRect(left_+10,top_,width_-15,height_, flags, txt);
+                if (boundRect.height() > height_ && fieldObject->autoHeight == 1) {
+                    /*To correct adjust and display a height of the band we use a param 'realHeight'.
+                     Currently this param used only to correct a MasterBand. If will be needed, possible
+                     correct also another bands.
+                    */
+                    fieldObject->parentBand->realHeight = qRound(boundRect.height()/koefRes_h);
+                }
             }
         }
     }

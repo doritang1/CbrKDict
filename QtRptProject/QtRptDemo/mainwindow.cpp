@@ -199,3 +199,8 @@ void MainWindow::setValue(const int recNo, const QString paramName, QVariant &pa
 MainWindow::~MainWindow() {
     delete ui;
 }
+
+void MainWindow::on_btnShow_clicked()
+{
+
+}

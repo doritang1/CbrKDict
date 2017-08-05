@@ -36,6 +36,7 @@ bool CKDBEngine::connectDb(const QString &dbType, const QString &fileName)
          modelContent->setHeaderData(3, Qt::Horizontal, "Body");
         // modelContent->setSort(4,Qt::AscendingOrder); //colTitle을 기준으로 정렬
 
+
          mapperContent = new QDataWidgetMapper;
          mapperContent->setSubmitPolicy(QDataWidgetMapper::ManualSubmit);
          mapperContent->setModel(modelContent);

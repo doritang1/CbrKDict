@@ -65,6 +65,7 @@ private slots:
     void showReport();
     void setValue(const int recNo, const QString paramName, QVariant &paramValue, const int reportPage);
 
+    void on_btnShow_clicked();
 };
 
 #endif // MAINWINDOW_H

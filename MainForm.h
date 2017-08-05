@@ -15,6 +15,7 @@
 #include <QDialogButtonBox>
 #include <QPrintPreviewDialog>
 #include "qtrpt.h"
+#include <QtWebKitWidgets/QWebView>
 
 class MainForm : public QWidget
 {
@@ -23,7 +24,9 @@ class MainForm : public QWidget
 public:
     MainForm(QWidget *parent = 0);
     ~MainForm();
-
+protected:
+    //키입력을 감시해서 다른 행동을 하게 하기 위한 일종의 후킹함수
+   bool eventFilter(QObject* obj, QEvent* event);
 private slots:
     //데이터 표시 함수
     void updateCategoryLevel2ListView();
@@ -40,21 +43,23 @@ private slots:
     void confirmCategory();
 
     //데이터 조작용 함수(Content 패널)
+    void searchContent();
     void addContent();
     void deleteContent();
     void confirmContent();
-    void currentContent();
+    void contentFromTableModel(QModelIndex);
+    void contentFromQueryModel(QModelIndex);
     void printBody(); //현재 내용을 출력
     void slotPrint(QPrinter *);//printBody()에서 다시 호출
     void printReport(); //리포트 생성
     //리포트에 데이터 연결
     void setValue(const int recNo, const QString paramName, QVariant &paramValue, const int reportPage);
-
 private:
     //화면 구성요소 생성 함수
     void createCategoryPanel();
     void createContentPanel();
-
+    void changeModel(QSqlQueryModel *);
+    void changeModel(QSqlTableModel *);
     //현재 포커스를 받은 컨트롤의 색인을 저장하는 변수
     int focusedWidget;
 
@@ -86,9 +91,18 @@ private:
             QHBoxLayout *titleHBoxLayout;
                 QFormLayout *titleFormLayout;
                     QLabel *titleLabel;
-                    QLineEdit *titleLineEdit;
+                    //QLineEdit *titleLineEdit;
+                    QPlainTextEdit *bodyTextEdit;
+                    QLabel *titleLabel01;
+                    QLineEdit *titleLineEdit01;
+                    QLabel *titleLabel02;
+                    QLineEdit *titleLineEdit02;
+                    QLabel *titleLabel03;
+                    QLineEdit *titleLineEdit03;
+                    QLabel *titleLabel04;
+                    QComboBox *titleLineEdit04;
                 QPushButton *titleSearchPushButton;
-            QPlainTextEdit *bodyTextEdit;
+            QWebView *bodyWebView;
             QTableView *contentTableView;
             //조작버튼들(Content 패널용)
             QDialogButtonBox *contentDialogButtonBox;
@@ -111,6 +125,8 @@ private:
     //기타
     QPrinter *prntDevice;
     QPrintPreviewDialog *prntPreviewDialog;
+    QSqlQueryModel *queryModel;
+    QSortFilterProxyModel *proxyModel;
 };
 
 #endif // MAINFORM_H
