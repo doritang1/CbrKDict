@@ -14,11 +14,16 @@ TEMPLATE = app
 
 SOURCES += main.cpp\
         MainForm.cpp\
-        ckdbengine.cpp
+        ckdbengine.cpp \
+        document.cpp
 HEADERS  += MainForm.h\
-        ckdbengine.h
+        ckdbengine.h \
+        document.h
+
+RESOURCES = \
+    resources/markdowneditor.qrc
 
 include(../CbrkDict/QtRptProject/QtRPT/QtRPT.pri)
 
 DISTFILES += \
-    debug/QtinyMCE/tinymce4_base.html
+    3RDPARTY.md

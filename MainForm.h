@@ -3,6 +3,7 @@
 
 #include <QWidget>
 #include "ckdbengine.h" //DB 관리를 위한 엔진을 include한다.
+#include "document.h" //webview에 노출시키기 위한 객체
 #include <QVBoxLayout>
 #include <QFormLayout>
 #include <QLabel>
@@ -25,8 +26,7 @@ public:
     MainForm(QWidget *parent = 0);
     ~MainForm();
 protected:
-    //키입력을 감시해서 다른 행동을 하게 하기 위한 일종의 후킹함수
-   bool eventFilter(QObject* obj, QEvent* event);
+
 private slots:
     //데이터 표시 함수
     void updateCategoryLevel2ListView();
@@ -92,8 +92,7 @@ private:
             QHBoxLayout *titleHBoxLayout;
                 QFormLayout *titleFormLayout;
                     QLabel *titleLabel;
-                    //QLineEdit *titleLineEdit;
-                    QPlainTextEdit *bodyTextEdit;
+                    QLineEdit *titleLineEdit;
                     QLabel *titleLabel01;
                     QLineEdit *titleLineEdit01;
                     QLabel *titleLabel02;
@@ -103,7 +102,10 @@ private:
                     QLabel *titleLabel04;
                     QComboBox *titleLineEdit04;
                 QPushButton *titleSearchPushButton;
-            QWebEngineView *bodyWebView;
+
+            QHBoxLayout *previewHBoxLayout;
+                QPlainTextEdit *bodyTextEdit;
+                QWebEngineView *bodyWebView;
             QTableView *contentTableView;
             //조작버튼들(Content 패널용)
             QDialogButtonBox *contentDialogButtonBox;
@@ -128,6 +130,8 @@ private:
     QPrintPreviewDialog *prntPreviewDialog;
     QSqlQueryModel *queryModel;
     QSortFilterProxyModel *proxyModel;
+
+    Document m_content;
 };
 
 #endif // MAINFORM_H

@@ -3,6 +3,7 @@
 #include <QMessageBox>
 #include <QHeaderView>
 #include <QWebEnginePage>
+#include <QWebChannel>
 
 MainForm::MainForm(QWidget *parent)
     : QWidget(parent)
@@ -154,24 +155,9 @@ void MainForm::createContentPanel()
         titleLabel->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
         titleLabel->setContentsMargins(0,5,0,0); // 이 값을 안주면 라벨의 텍스트가 약간 위쪽에 있게 됨
 //        titleLineEdit = new QLineEdit;
-        bodyTextEdit = new QPlainTextEdit();
-        bodyTextEdit->setMinimumHeight(50);
-        bodyTextEdit->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
-
-//        titleLabel01 = new QLabel(tr("①"));
-//        titleLabel01->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
-//        titleLabel01->setContentsMargins(0,5,0,0); // 이 값을 안주면 라벨의 텍스트가 약간 위쪽에 있게 됨
-//        titleLineEdit01 = new QLineEdit;
-
-//        titleLabel02 = new QLabel(tr("②"));
-//        titleLabel02->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
-//        titleLabel02->setContentsMargins(0,5,0,0); // 이 값을 안주면 라벨의 텍스트가 약간 위쪽에 있게 됨
-//        titleLineEdit02 = new QLineEdit;
-
-//        titleLabel03 = new QLabel(tr("③"));
-//        titleLabel03->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
-//        titleLabel03->setContentsMargins(0,5,0,0); // 이 값을 안주면 라벨의 텍스트가 약간 위쪽에 있게 됨
-//        titleLineEdit03 = new QLineEdit;
+        titleLineEdit = new QLineEdit();
+        titleLineEdit->setMinimumHeight(50);
+        titleLineEdit->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
 
         titleLabel04 = new QLabel(tr("Answer"));
         titleLabel04->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
@@ -190,10 +176,8 @@ void MainForm::createContentPanel()
 //        titleLineEdit04->lineEdit()->setPlaceholderText("Select...");
 
         titleFormLayout = new QFormLayout;
-        titleFormLayout->addRow(titleLabel, bodyTextEdit);
-//        titleFormLayout->addRow(titleLabel01, titleLineEdit01);
-//        titleFormLayout->addRow(titleLabel02, titleLineEdit02);
-//        titleFormLayout->addRow(titleLabel03, titleLineEdit03);
+        titleFormLayout->addRow(titleLabel, titleLineEdit);
+
         titleFormLayout->addRow(titleLabel04, titleLineEdit04);
 
         titleSearchPushButton = new QPushButton(tr("&Search"));
@@ -209,20 +193,47 @@ void MainForm::createContentPanel()
         titleHBoxLayout->addLayout(titleFormLayout);
         titleHBoxLayout->addLayout(searchButtonLayout);
     }
-    //데이터 표시영역(WebView 영역) 생성
+    //데이터 표시영역(PlainTextEdit, WebView 영역) 생성
     {
-        //    bodyTextEdit = new QPlainTextEdit();
-        //    bodyTextEdit->setMinimumHeight(300);
-        //    bodyTextEdit->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+        bodyTextEdit = new QPlainTextEdit();
+        bodyTextEdit->setMinimumHeight(300);
+        bodyTextEdit->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+
+        connect(bodyTextEdit, &QPlainTextEdit::textChanged,
+                [this]() { m_content.setText(bodyTextEdit->toPlainText()); });
+
 
         bodyWebView = new QWebEngineView;
-        bodyWebView->setMinimumHeight(100);
-        bodyWebView->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
+        bodyWebView->setMinimumHeight(300);
+        bodyWebView->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
 
-        QString CurDir =  qApp->applicationDirPath();
-        QUrl url("file:///"+CurDir+"/QtinyMCE/tinymce4_base.html");
-        bodyWebView->setUrl(url);
-        bodyWebView->installEventFilter(this);//웹뷰로부터 오는 이벤트를 받겠다는 뜻
+
+        QWebChannel *channel = new QWebChannel(this);
+        channel->registerObject(QStringLiteral("content"), &m_content);
+        bodyWebView->page()->setWebChannel(channel);
+        bodyWebView->setUrl(QUrl("qrc:/index.html"));
+
+
+        //스플리터를 생성한다.
+        QSplitter *previewSplitter = new QSplitter(Qt::Horizontal);
+        previewSplitter->setFrameStyle(QFrame::Panel|QFrame::Sunken);
+        previewSplitter->setChildrenCollapsible(false); //스플리터 내부의 요소들이 사라지지 않도록 최소크기를 유지함
+
+        //스플리터에 패널들을 붙인다.
+        previewSplitter->addWidget(bodyTextEdit);
+        previewSplitter->addWidget(bodyWebView);
+        //스플리터 내부의 인덱스가 1(두번째)인 컨트롤만 늘어남
+        //두번째 인자는 다른 인덱스(예를 들어 첫번째)의 컨트롤 대비 늘어나는 비율, 0이면 안늘어남
+        previewSplitter->setStretchFactor(0,1);
+
+
+        previewHBoxLayout = new QHBoxLayout;
+        previewHBoxLayout->addWidget(previewSplitter);
+
+        QFile defaultTextFile(":/default.md");
+        defaultTextFile.open(QIODevice::ReadOnly);
+        bodyTextEdit->setPlainText(defaultTextFile.readAll());
+
     }
     //테이블뷰의 생성
     {
@@ -274,8 +285,7 @@ void MainForm::createContentPanel()
     {
         contentPanelLayout = new QVBoxLayout;
         contentPanelLayout->addLayout(titleHBoxLayout);
-        //  contentPanelLayout->addWidget(bodyTextEdit);
-        contentPanelLayout->addWidget(bodyWebView);
+        contentPanelLayout->addLayout(previewHBoxLayout);
         contentPanelLayout->addWidget(contentTableView);
         contentPanelLayout->addWidget(contentDialogButtonBox);
     }
@@ -786,33 +796,3 @@ void MainForm::setValue(const int recNo, const QString paramName, QVariant &para
         paramValue = sqlDb->modelContent->record(recNo).value("colAnswer").toString();
 }
 
-//키입력을 감시해서 다른 행동을 하게 하기 위한 일종의 후킹함수
-//한글입력후 엔터등을 눌렀을 때 캐럿이 사라지는 것을 막고자 포커스를 죽였다가 살린다.
-//이 경우 올바른 해결책은 IME메시지를 받아 포커스를 조작하는 것인데 아직 못했다.
-bool MainForm::eventFilter(QObject* obj, QEvent* event)
-{
-    if(obj == bodyWebView)
-    {
-        if(event->type() == QEvent::KeyPress)
-        {
-            QKeyEvent* keyEvent = static_cast<QKeyEvent*>(event);
-            int key = keyEvent->key();
-            if(key == Qt::Key_Shift){
-                return false;
-            }else if(key == Qt::Key_Return||Qt::Key_Enter||Qt::Key_Space
-                    ||Qt::Key_Insert||Qt::Key_Delete||Qt::Key_Home
-                    ||Qt::Key_End||Qt::Key_PageUp||Qt::Key_PageDown
-                    ||Qt::Key_Left||Qt::Key_Right||Qt::Key_Up||Qt::Key_Down)
-            {
-                bodyWebView->clearFocus();
-                bodyWebView->setFocus();
-                return false;
-            }
-        }else{
-            return false;
-        }
-    }else{
-        //pass the event on to the parent class
-        return QWidget::eventFilter(obj, event);
-    }
-}
