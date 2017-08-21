@@ -15,7 +15,7 @@
 #include <QDialogButtonBox>
 #include <QPrintPreviewDialog>
 #include "qtrpt.h"
-#include <QtWebKitWidgets/QWebView>
+#include <QWebEngineView>
 
 class MainForm : public QWidget
 {
@@ -51,6 +51,7 @@ private slots:
     void contentFromQueryModel(QModelIndex);
     void printBody(); //현재 내용을 출력
     void slotPrint(QPrinter *);//printBody()에서 다시 호출
+    void slotHandlePagePrinted(bool); //resullcallback
     void printReport(); //리포트 생성
     //리포트에 데이터 연결
     void setValue(const int recNo, const QString paramName, QVariant &paramValue, const int reportPage);
@@ -102,7 +103,7 @@ private:
                     QLabel *titleLabel04;
                     QComboBox *titleLineEdit04;
                 QPushButton *titleSearchPushButton;
-            QWebView *bodyWebView;
+            QWebEngineView *bodyWebView;
             QTableView *contentTableView;
             //조작버튼들(Content 패널용)
             QDialogButtonBox *contentDialogButtonBox;
