@@ -26,9 +26,8 @@ MainForm::MainForm(QWidget *parent)
         //스플리터에 패널들을 붙인다.
         mainSplitter->addWidget(categoryPanel);
         mainSplitter->addWidget(contentPanel);
-        //스플리터 내부의 인덱스가 1(두번째)인 컨트롤만 늘어남
-        //두번째 인자는 다른 인덱스(예를 들어 첫번째)의 컨트롤 대비 늘어나는 비율, 0이면 안늘어남
         mainSplitter->setStretchFactor(1,1);
+
         //레이아웃을 생성하여 스플리터를 붙인다.
         mainLayout = new QVBoxLayout;
         mainLayout->addWidget(mainSplitter);
@@ -154,7 +153,6 @@ void MainForm::createContentPanel()
         titleLabel = new QLabel(tr("Question"));
         titleLabel->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
         titleLabel->setContentsMargins(0,5,0,0); // 이 값을 안주면 라벨의 텍스트가 약간 위쪽에 있게 됨
-//        titleLineEdit = new QLineEdit;
         titleLineEdit = new QLineEdit();
         titleLineEdit->setMinimumHeight(50);
         titleLineEdit->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
@@ -167,22 +165,13 @@ void MainForm::createContentPanel()
         titleLineEdit04->setEditText("-");
         titleLineEdit04->addItem("O");
         titleLineEdit04->addItem("X");
-        titleLineEdit04->addItem("1)");
-        titleLineEdit04->addItem("2)");
-        titleLineEdit04->addItem("3)");
-        titleLineEdit04->addItem("4)");
-//        QLineEdit *le = new QLineEdit;
-//        titleLineEdit04->setLineEdit(le);
-//        titleLineEdit04->lineEdit()->setPlaceholderText("Select...");
 
         titleFormLayout = new QFormLayout;
         titleFormLayout->addRow(titleLabel, titleLineEdit);
-
         titleFormLayout->addRow(titleLabel04, titleLineEdit04);
 
         titleSearchPushButton = new QPushButton(tr("&Search"));
         titleSearchPushButton->setSizePolicy(QSizePolicy::Maximum,QSizePolicy::Maximum);
-
         QSpacerItem *vspacer = new QSpacerItem(40,20,QSizePolicy::Minimum,QSizePolicy::Expanding);
 
         QVBoxLayout *searchButtonLayout = new QVBoxLayout;
@@ -218,14 +207,14 @@ void MainForm::createContentPanel()
         QSplitter *previewSplitter = new QSplitter(Qt::Horizontal);
         previewSplitter->setFrameStyle(QFrame::Panel|QFrame::Sunken);
         previewSplitter->setChildrenCollapsible(false); //스플리터 내부의 요소들이 사라지지 않도록 최소크기를 유지함
+        previewSplitter->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+        //스플리터 내부의 인덱스가 0(첫번째)인 컨트롤만 늘어남
+        //두번째 인자는 다른 인덱스(예를 들어 두번째)의 컨트롤 대비 늘어나는 비율, 0이면 안늘어남
+        previewSplitter->setStretchFactor(0,1);
 
         //스플리터에 패널들을 붙인다.
         previewSplitter->addWidget(bodyTextEdit);
         previewSplitter->addWidget(bodyWebView);
-        //스플리터 내부의 인덱스가 1(두번째)인 컨트롤만 늘어남
-        //두번째 인자는 다른 인덱스(예를 들어 첫번째)의 컨트롤 대비 늘어나는 비율, 0이면 안늘어남
-        previewSplitter->setStretchFactor(0,1);
-
 
         previewHBoxLayout = new QHBoxLayout;
         previewHBoxLayout->addWidget(previewSplitter);
@@ -286,10 +275,14 @@ void MainForm::createContentPanel()
         contentPanelLayout = new QVBoxLayout;
         contentPanelLayout->addLayout(titleHBoxLayout);
         contentPanelLayout->addLayout(previewHBoxLayout);
+
         contentPanelLayout->addWidget(contentTableView);
         contentPanelLayout->addWidget(contentDialogButtonBox);
+        //only the previewHBoxLayout stretches
+        contentPanelLayout->setStretch(1,1);
     }
-    //프레임을 생성하여 프레임에 레이아웃을 붙인다.
+
+    //create a frame and attache the layout to it
     {
         contentPanel = new QFrame;
         contentPanel->setFrameStyle(QFrame::Panel|QFrame::Sunken);
@@ -299,11 +292,6 @@ void MainForm::createContentPanel()
     //생성된 요소와 데이터를 연동함
     sqlDb->mapperContent->addMapping(bodyTextEdit, 2);
     sqlDb->mapperContent->addMapping(titleLineEdit04,5);
-    //sqlDb->mapperContent->addMapping(bodyTextEdit, 3);
-
-    //insert QWebView object to javascript.
-    //bodyWebView->page()->mainFrame()->addToJavaScriptWindowObject("hostObject", this);
-    //bodyWebView->page()->mainFrame()->evaluateJavaScript("tinyMCE.get('mytextarea').execCommand('mceFullScreen');");
 }
 
 //첫번째 Category 선택에 따라 두번째 Category 변경
@@ -360,12 +348,9 @@ void MainForm::updateContentPanel()
             }
             sqlDb->modelContent->select();
             changeModel(sqlDb->modelContent);
-//            sqlDb->mapperContent->setCurrentIndex(0);
-//            //replace처리를 하지 않으면 개행문자에서 출력이 잘린다(multiline 처리)
 
-//            bodyString = sqlDb->modelContent->record(0).value("colBody").toString();
-//            bodyWebView->page()->mainFrame()->evaluateJavaScript(QString("tinyMCE.activeEditor.setContent('%1')").arg(bodyString).replace("\n","\\n"));
             break;
+
         case 2:
             categoryLevel1ListView->setFrameShadow(QFrame::Sunken);
             categoryLevel2ListView->setFrameShadow(QFrame::Plain);
@@ -382,11 +367,7 @@ void MainForm::updateContentPanel()
             }
             sqlDb->modelContent->select();
             changeModel(sqlDb->modelContent);
-//            sqlDb->mapperContent->setCurrentIndex(0);
-//            //replace처리를 하지 않으면 개행문자에서 출력이 잘린다(multiline 처리)
 
-//            bodyString = sqlDb->modelContent->record(0).value("colBody").toString();
-//            bodyWebView->page()->mainFrame()->evaluateJavaScript(QString("tinyMCE.activeEditor.setContent('%1')").arg(bodyString).replace("\n","\\n"));
             break;
 
         case 1:
