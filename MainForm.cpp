@@ -160,15 +160,15 @@ void MainForm::createContentPanel()
         titleLabel04 = new QLabel(tr("Answer"));
         titleLabel04->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
         titleLabel04->setContentsMargins(0,5,0,0); // 이 값을 안주면 라벨의 텍스트가 약간 위쪽에 있게 됨
-        titleLineEdit04 = new QComboBox;
-        titleLineEdit04->setEditable(true);
-        titleLineEdit04->setEditText("-");
-        titleLineEdit04->addItem("O");
-        titleLineEdit04->addItem("X");
+        titleComboBox = new QComboBox;
+        titleComboBox->setEditable(true);
+        titleComboBox->setEditText("-");
+        titleComboBox->addItem("O");
+        titleComboBox->addItem("X");
 
         titleFormLayout = new QFormLayout;
         titleFormLayout->addRow(titleLabel, titleLineEdit);
-        titleFormLayout->addRow(titleLabel04, titleLineEdit04);
+        titleFormLayout->addRow(titleLabel04, titleComboBox);
 
         titleSearchPushButton = new QPushButton(tr("&Search"));
         titleSearchPushButton->setSizePolicy(QSizePolicy::Maximum,QSizePolicy::Maximum);
@@ -204,7 +204,7 @@ void MainForm::createContentPanel()
 
 
         //스플리터를 생성한다.
-        QSplitter *previewSplitter = new QSplitter(Qt::Horizontal);
+        previewSplitter = new QSplitter(Qt::Horizontal);
         previewSplitter->setFrameStyle(QFrame::Panel|QFrame::Sunken);
         previewSplitter->setChildrenCollapsible(false); //스플리터 내부의 요소들이 사라지지 않도록 최소크기를 유지함
         previewSplitter->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
@@ -216,8 +216,7 @@ void MainForm::createContentPanel()
         previewSplitter->addWidget(bodyTextEdit);
         previewSplitter->addWidget(bodyWebView);
 
-        previewHBoxLayout = new QHBoxLayout;
-        previewHBoxLayout->addWidget(previewSplitter);
+
 
         QFile defaultTextFile(":/default.md");
         defaultTextFile.open(QIODevice::ReadOnly);
@@ -274,9 +273,15 @@ void MainForm::createContentPanel()
     {
         contentPanelLayout = new QVBoxLayout;
         contentPanelLayout->addLayout(titleHBoxLayout);
-        contentPanelLayout->addLayout(previewHBoxLayout);
 
-        contentPanelLayout->addWidget(contentTableView);
+        QSplitter *splitPreviewTable = new QSplitter(Qt::Vertical);
+        splitPreviewTable->addWidget(previewSplitter);
+        splitPreviewTable->addWidget(contentTableView);
+
+        previewHBoxLayout = new QHBoxLayout;
+        previewHBoxLayout->addWidget(splitPreviewTable);
+
+        contentPanelLayout->addLayout(previewHBoxLayout);
         contentPanelLayout->addWidget(contentDialogButtonBox);
         //only the previewHBoxLayout stretches
         contentPanelLayout->setStretch(1,1);
@@ -291,9 +296,19 @@ void MainForm::createContentPanel()
 
     //생성된 요소와 데이터를 연동함
     sqlDb->mapperContent->addMapping(bodyTextEdit, 2);
-    sqlDb->mapperContent->addMapping(titleLineEdit04,5);
+    sqlDb->mapperContent->addMapping(titleComboBox,5);
 }
-
+//첫번째 Category 데이터 삭제여부에 따라 리스트뷰를 갱신
+void MainForm::updateCategoryLevel1ListView()
+{
+    QModelIndex index = categoryLevel1ListView->currentIndex();
+    if(index.isValid()){
+        sqlDb->modelCategoryLevel1->removeRow(index.row());
+        sqlDb->modelCategoryLevel1->submitAll();
+        sqlDb->modelCategoryLevel1->select();
+    }
+    return;
+}
 //첫번째 Category 선택에 따라 두번째 Category 변경
 void MainForm::updateCategoryLevel2ListView()
 {
@@ -348,7 +363,6 @@ void MainForm::updateContentPanel()
             }
             sqlDb->modelContent->select();
             changeModel(sqlDb->modelContent);
-
             break;
 
         case 2:
@@ -367,7 +381,6 @@ void MainForm::updateContentPanel()
             }
             sqlDb->modelContent->select();
             changeModel(sqlDb->modelContent);
-
             break;
 
         case 1:
@@ -503,15 +516,71 @@ void MainForm::deleteCategory()
 
     //포커스를 받은 위젯이 두 번째 리스트뷰임
     if(focusedWidget == 2){
-    QMessageBox::information(this, tr("Delete Category"),
-                         tr("Delete Category Level 3 first."),
-                         QMessageBox::Abort);
+        //삭제하려는데 선택된 데이터가 없으면 리턴함
+        QModelIndex index = categoryLevel2ListView->currentIndex();
+        if (!index.isValid())
+             return;
+
+        QSqlDatabase::database().transaction();
+        QSqlRecord record = sqlDb->modelCategoryLevel2->record(index.row());
+        int idLevel2 = record.value(0).toInt();//0번째 컬럼, 즉 idLevel2의 데이터를 뽑는다.
+        int numContents = 0;
+
+        //tblContent 테이블에서 foreign key인 colCategoryIdLevel2가 idLevel2와 같은 경우의 갯수를 센다.
+        QSqlQuery query(QString("SELECT COUNT(*) FROM tblContent "
+                                "WHERE colCategoryIdLevel2 = %1").arg(idLevel2));
+        if (query.next())
+            numContents = query.value(0).toInt();
+        //Category Level2에 걸리는 Content가 있다면 사용자의 의사를 물어본다.
+        if (numContents > 0) {
+            int r = QMessageBox::warning(this, tr("Delete Category"),
+                        tr("Delete %1 and all its contents?")
+                        .arg(record.value(2).toString()),
+                        QMessageBox::Yes | QMessageBox::No);
+            if (r == QMessageBox::No) {
+                QSqlDatabase::database().rollback();
+                return;
+            }
+            //사용자가 Yes를 눌렀다면 그대로 진행하여 Category Level2에 속한 Content들을 삭제함
+            query.exec(QString("DELETE FROM tblContent "
+                               "WHERE colCategoryIdLevel2 = %1").arg(idLevel2));
+        }
+        //Category Level2에 걸리는 Content가 없다면 그냥 삭제한다.
+        sqlDb->modelCategoryLevel2->removeRow(index.row());
+        sqlDb->modelCategoryLevel2->submitAll();
+        QSqlDatabase::database().commit();
+
+        updateCategoryLevel2ListView();
+        categoryLevel2ListView->setFocus();
+
+        return;
     }
     //포커스를 받은 위젯이 첫 번째 리스트뷰임
     if(focusedWidget == 1){
-    QMessageBox::information(this, tr("Delete Category"),
-                         tr("Delete Category Level 3 and 2 first."),
-                         QMessageBox::Abort);
+        //삭제하려는데 선택된 데이터가 없으면 리턴함
+        QModelIndex index = categoryLevel1ListView->currentIndex();
+        if (!index.isValid())
+             return;
+
+        QSqlDatabase::database().transaction();
+        QSqlRecord record = sqlDb->modelCategoryLevel1->record(index.row());
+
+        int r = QMessageBox::warning(this, tr("Delete Category"),
+                    tr("Delete %1?")
+                    .arg(record.value(1).toString()),
+                    QMessageBox::Yes | QMessageBox::No);
+        if (r == QMessageBox::No) {
+            QSqlDatabase::database().rollback();
+            return;
+        }
+
+        sqlDb->modelCategoryLevel1->removeRow(index.row());
+        sqlDb->modelCategoryLevel1->submitAll();
+        QSqlDatabase::database().commit();
+
+        categoryLevel1ListView->reset();
+
+        return;
     }
 }
 void MainForm::confirmCategory()
@@ -599,14 +668,11 @@ void MainForm::changeModel(QSqlQueryModel *model)
 
     sqlDb->mapperContent->clearMapping();
     sqlDb->mapperContent->setModel(model);
-    sqlDb->mapperContent->addMapping(bodyTextEdit, 2);
-    sqlDb->mapperContent->addMapping(titleLineEdit04, 5);
+    sqlDb->mapperContent->addMapping(titleLineEdit, 2);
+    sqlDb->mapperContent->addMapping(titleComboBox, 5);
 
-    titleLineEdit04->setEditText("Select...");
-    QString CurDir =  qApp->applicationDirPath();
-    QUrl url("file:///"+CurDir+"/QtinyMCE/tinymce4_base.html");
-    bodyWebView->setUrl(url);
-
+    titleComboBox->setEditText("Select...");
+    bodyWebView->setUrl(QUrl("qrc:/index.html"));
     connect(contentTableView->selectionModel(),
             SIGNAL(currentRowChanged(const QModelIndex &, const QModelIndex &)),
             this, SLOT(contentFromQueryModel(QModelIndex)));
@@ -617,14 +683,11 @@ void MainForm::changeModel(QSqlTableModel *model)
 
     sqlDb->mapperContent->clearMapping();
     sqlDb->mapperContent->setModel(model);
-    sqlDb->mapperContent->addMapping(bodyTextEdit, 2);
-    sqlDb->mapperContent->addMapping(titleLineEdit04, 5);
+    sqlDb->mapperContent->addMapping(titleLineEdit, 2);
+    sqlDb->mapperContent->addMapping(titleComboBox, 5);
 
-    titleLineEdit04->setEditText("Select...");
-    QString CurDir =  qApp->applicationDirPath();
-    QUrl url("file:///"+CurDir+"/QtinyMCE/tinymce4_base.html");
-    bodyWebView->setUrl(url);
-
+    titleComboBox->setEditText("Select...");
+    bodyWebView->setUrl(QUrl("qrc:/index.html"));
     connect(contentTableView->selectionModel(),
             SIGNAL(currentRowChanged(QModelIndex,QModelIndex)),
             this,SLOT(contentFromTableModel(QModelIndex)));
@@ -637,12 +700,13 @@ void MainForm::addContent()
     sqlDb->modelContent->insertRow(row);
     sqlDb->mapperContent->setCurrentIndex(row);
 
+    titleLineEdit->clear();
     bodyTextEdit->clear();
-    titleLineEdit04->clearEditText();
-    titleLineEdit04->setEditText("Select...");
-    QString CurDir =  qApp->applicationDirPath();
-    QUrl url("file:///"+CurDir+"/QtinyMCE/tinymce4_base.html");
-    bodyWebView->setUrl(url);
+    titleComboBox->clearEditText();
+    titleComboBox->setEditText("Select...");
+
+    bodyWebView->setUrl(QUrl("qrc:/index.html"));
+
     bodyTextEdit->setFocus();
 }
 void MainForm::deleteContent()
@@ -654,11 +718,11 @@ void MainForm::deleteContent()
     //매퍼의 현재 인덱스를 삭제된 바로 다음 행이 되게 하고, 삭제된 행이 마지막 행이었다면 지금의 마지막 행이 현재 인덱스가 되게 한다.
     sqlDb->mapperContent->setCurrentIndex(qMin(row, sqlDb->modelContent->rowCount() - 1));
     //replace처리를 하지 않으면 개행문자에서 출력이 잘린다(multiline 처리)
-    titleLineEdit04->setEditText("Select...");
+    titleComboBox->setEditText("Select...");
     QString bodyString;
     bodyString = sqlDb->modelContent->record(qMin(row, sqlDb->modelContent->rowCount() - 1)).value("colBody").toString();
-    //bodyWebView->page()->mainFrame()->evaluateJavaScript(QString("tinyMCE.activeEditor.setContent('%1')").arg(bodyString).replace("\n","\\n"));
-    bodyWebView->page()->runJavaScript(QString("tinyMCE.activeEditor.setContent('%1')").arg(bodyString).replace("\n","\\n"));
+    //bodyWebView->page()->runJavaScript(QString("tinyMCE.activeEditor.setContent('%1')").arg(bodyString).replace("\n","\\n"));
+    bodyTextEdit->setPlainText(bodyString);
 }
 void MainForm::confirmContent()
 {
@@ -686,22 +750,18 @@ void MainForm::confirmContent()
     QModelIndex idxAnswer = sqlDb->modelContent->index(row,5);
 
     sqlDb->modelContent->setData(idxCategoryIdLevel3, idLevel3);
-    sqlDb->modelContent->setData(idxTitle, bodyTextEdit->toPlainText());
+    sqlDb->modelContent->setData(idxTitle, titleLineEdit->text());
     sqlDb->modelContent->setData(idxCategoryIdLevel2, idLevel2);
-    sqlDb->modelContent->setData(idxAnswer, titleLineEdit04->currentText());
-    //sqlDb->modelContent->setData(idxBody,bodyTextEdit->toPlainText());
-    //비동기식이므로 콜백함수를 넣어 준다.
-    bodyWebView->page()->runJavaScript(
-                "tinyMCE.activeEditor.getContent();",
-                [this, idxBody](const QVariant &result){this->sqlDb->modelContent->setData(idxBody, result.toString()); sqlDb->modelContent->submitAll();});
-    //sqlDb->modelContent->setData(idxBody, bodyString);
-    //sqlDb->modelContent->submitAll();
-
+    sqlDb->modelContent->setData(idxAnswer, titleComboBox->currentText());
+    sqlDb->modelContent->setData(idxBody,bodyTextEdit->toPlainText());
+//    //비동기식이므로 콜백함수를 넣어 준다.
+//    bodyWebView->page()->runJavaScript(
+//                "tinyMCE.activeEditor.getContent();",
+//                [this, idxBody](const QVariant &result){this->sqlDb->modelContent->setData(idxBody, result.toString()); sqlDb->modelContent->submitAll();});
+    sqlDb->modelContent->submitAll();
     bodyTextEdit->clear();
-    titleLineEdit04->setEditText("Select...");
-    QString CurDir =  qApp->applicationDirPath();
-    QUrl url("file:///"+CurDir+"/QtinyMCE/tinymce4_base.html");
-    bodyWebView->setUrl(url);
+    titleComboBox->setEditText("Select...");
+    bodyWebView->setUrl(QUrl("qrc:/index.html"));
 }
 void MainForm::contentFromTableModel(QModelIndex index)
 {
@@ -710,7 +770,8 @@ void MainForm::contentFromTableModel(QModelIndex index)
     //replace처리를 하지 않으면 개행문자에서 출력이 잘린다(multiline 처리)
     QString bodyString;
     bodyString = sqlDb->modelContent->record(row).value("colBody").toString();
-    bodyWebView->page()->runJavaScript(QString("tinyMCE.activeEditor.setContent('%1')").arg(bodyString).replace("\n","\\n"));
+    //bodyWebView->page()->runJavaScript(QString("tinyMCE.activeEditor.setContent('%1')").arg(bodyString).replace("\n","\\n"));
+    bodyTextEdit->setPlainText(bodyString);
 }
 void MainForm::contentFromQueryModel(QModelIndex index)
 {
@@ -719,7 +780,8 @@ void MainForm::contentFromQueryModel(QModelIndex index)
     //replace처리를 하지 않으면 개행문자에서 출력이 잘린다(multiline 처리)
     QString bodyString;
     bodyString = queryModel->record(row).value("colBody").toString();
-    bodyWebView->page()->runJavaScript(QString("tinyMCE.activeEditor.setContent('%1')").arg(bodyString).replace("\n","\\n"));
+    //bodyWebView->page()->runJavaScript(QString("tinyMCE.activeEditor.setContent('%1')").arg(bodyString).replace("\n","\\n"));
+    bodyTextEdit->setPlainText(bodyString);
 }
 //본문 인쇄
 void MainForm::printBody()
@@ -734,11 +796,11 @@ void MainForm::slotPrint(QPrinter *printer)
 {
     QWebEngineView *webviewPrint = new QWebEngineView();
     webviewPrint->setFixedSize(QSize(printer->width(),printer->height()));
-    //QString printString;
-    bodyWebView->page()->runJavaScript("tinyMCE.activeEditor.getContent();",
-                                       [webviewPrint](const QVariant &result){webviewPrint->setHtml(result.toString());});
-    //webviewPrint->setHtml(printString);
-   //webviewPrint->setHtml(ui->webViewBody->page()->mainFrame()->toHtml());
+
+    //bodyWebView->page()->runJavaScript("tinyMCE.activeEditor.getContent();",
+    //                                   [webviewPrint](const QVariant &result){webviewPrint->setHtml(result.toString());});
+
+    bodyWebView->page()->toHtml([webviewPrint](const QVariant &result){qDebug()<<result.toString();webviewPrint->setHtml(result.toString());});
 
     printer->setPaperSize(QPrinter::A4);
     printer->setOutputFormat(QPrinter::NativeFormat);

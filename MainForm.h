@@ -29,6 +29,7 @@ protected:
 
 private slots:
     //데이터 표시 함수
+    void updateCategoryLevel1ListView();
     void updateCategoryLevel2ListView();
     void updateCategoryLevel3ListView();
     void updateContentPanel();
@@ -93,18 +94,13 @@ private:
                 QFormLayout *titleFormLayout;
                     QLabel *titleLabel;
                     QLineEdit *titleLineEdit;
-                    QLabel *titleLabel01;
-                    QLineEdit *titleLineEdit01;
-                    QLabel *titleLabel02;
-                    QLineEdit *titleLineEdit02;
-                    QLabel *titleLabel03;
-                    QLineEdit *titleLineEdit03;
                     QLabel *titleLabel04;
-                    QComboBox *titleLineEdit04;
+                    QComboBox *titleComboBox;
                 QPushButton *titleSearchPushButton;
 
             QHBoxLayout *previewHBoxLayout;
                 QPlainTextEdit *bodyTextEdit;
+                QSplitter *previewSplitter;
                 QWebEngineView *bodyWebView;
             QTableView *contentTableView;
             //조작버튼들(Content 패널용)
