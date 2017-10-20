@@ -49,7 +49,12 @@
 ****************************************************************************/
 
 #include "document.h"
+#include "QDebug"
 
+Document::Document(QObject *parent) : QObject(parent)
+{
+
+}
 void Document::setText(const QString &text)
 {
     if (text == m_text)
@@ -57,3 +62,31 @@ void Document::setText(const QString &text)
     m_text = text;
     emit textChanged(m_text);
 }
+//몇 번째 html변환작업인지 저장
+void Document::setDataCount()
+{
+    m_dataNum++;
+}
+
+void Document::setPlainText()
+{
+    //데이터의 끝에 다다랐으면 멈춤
+    if (m_dataNum >= plainTextList.count()){
+        emit htmlTextReceived();
+        m_dataNum = 0;
+        return;
+    }
+    emit plainTextLoaded(plainTextList.value(m_dataNum));
+}
+
+//변환된 html을 저장
+void Document::setHtml(const QString &html2)
+{
+    htmlTextList.insert(m_dataNum, html2);
+}
+
+
+
+
+
+

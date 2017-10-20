@@ -1944,7 +1944,11 @@ release\MainForm.obj: MainForm.cpp MainForm.h \
 		..\..\Qt\5.9.1\msvc2017_64\include\QtWidgets\qmessagebox.h \
 		..\..\Qt\5.9.1\msvc2017_64\include\QtWidgets\QHeaderView \
 		..\..\Qt\5.9.1\msvc2017_64\include\QtWidgets\qheaderview.h \
-		..\..\Qt\5.9.1\msvc2017_64\include\QtWebEngineWidgets\QWebEnginePage
+		..\..\Qt\5.9.1\msvc2017_64\include\QtWebEngineWidgets\QWebEnginePage \
+		..\..\Qt\5.9.1\msvc2017_64\include\QtWebChannel\QWebChannel \
+		..\..\Qt\5.9.1\msvc2017_64\include\QtWebChannel\qwebchannel.h \
+		..\..\Qt\5.9.1\msvc2017_64\include\QtCore\QJsonValue \
+		..\..\Qt\5.9.1\msvc2017_64\include\QtWebChannel\qwebchannelglobal.h
 
 release\ckdbengine.obj: ckdbengine.cpp ckdbengine.h \
 		..\..\Qt\5.9.1\msvc2017_64\include\QtSql\QtSql \
@@ -2249,7 +2253,22 @@ release\document.obj: document.cpp document.h \
 		..\..\Qt\5.9.1\msvc2017_64\include\QtCore\qvarlengtharray.h \
 		..\..\Qt\5.9.1\msvc2017_64\include\QtCore\qcontainerfwd.h \
 		..\..\Qt\5.9.1\msvc2017_64\include\QtCore\qobject_impl.h \
-		..\..\Qt\5.9.1\msvc2017_64\include\QtCore\QString
+		..\..\Qt\5.9.1\msvc2017_64\include\QtCore\QString \
+		..\..\Qt\5.9.1\msvc2017_64\include\QtCore\QDebug \
+		..\..\Qt\5.9.1\msvc2017_64\include\QtCore\qdebug.h \
+		..\..\Qt\5.9.1\msvc2017_64\include\QtCore\qhash.h \
+		..\..\Qt\5.9.1\msvc2017_64\include\QtCore\qmap.h \
+		..\..\Qt\5.9.1\msvc2017_64\include\QtCore\qtextstream.h \
+		..\..\Qt\5.9.1\msvc2017_64\include\QtCore\qiodevice.h \
+		..\..\Qt\5.9.1\msvc2017_64\include\QtCore\qlocale.h \
+		..\..\Qt\5.9.1\msvc2017_64\include\QtCore\qvariant.h \
+		..\..\Qt\5.9.1\msvc2017_64\include\QtCore\qshareddata.h \
+		..\..\Qt\5.9.1\msvc2017_64\include\QtCore\qvector.h \
+		..\..\Qt\5.9.1\msvc2017_64\include\QtCore\qpoint.h \
+		..\..\Qt\5.9.1\msvc2017_64\include\QtCore\qset.h \
+		..\..\Qt\5.9.1\msvc2017_64\include\QtCore\qcontiguouscache.h \
+		..\..\Qt\5.9.1\msvc2017_64\include\QtCore\qsharedpointer.h \
+		..\..\Qt\5.9.1\msvc2017_64\include\QtCore\qsharedpointer_impl.h
 
 release\CommonClasses.obj: ..\CbrkDict\QtRptProject\CommonFiles\CommonClasses.cpp ../CbrkDict/QtRptProject/CommonFiles/CommonClasses.h \
 		..\..\Qt\5.9.1\msvc2017_64\include\QtCore\QMap \

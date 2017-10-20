@@ -1,4 +1,4 @@
-#include "MainForm.h"
+﻿#include "MainForm.h"
 #include <QApplication>
 #include <QMessageBox>
 #include <QHeaderView>
@@ -29,9 +29,9 @@ MainForm::MainForm(QWidget *parent)
         mainSplitter->setStretchFactor(1,1);
 
         //레이아웃을 생성하여 스플리터를 붙인다.
+
         mainLayout = new QVBoxLayout;
         mainLayout->addWidget(mainSplitter);
-
         setLayout(mainLayout);
     }
 }
@@ -191,17 +191,17 @@ void MainForm::createContentPanel()
         connect(bodyTextEdit, &QPlainTextEdit::textChanged,
                 [this]() { m_content.setText(bodyTextEdit->toPlainText()); });
 
-
+        connect(&m_content, SIGNAL(htmlTextReceived()),
+                this, SLOT(printReport()));
         bodyWebView = new QWebEngineView;
         bodyWebView->setMinimumHeight(300);
         bodyWebView->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
 
-
         QWebChannel *channel = new QWebChannel(this);
         channel->registerObject(QStringLiteral("content"), &m_content);
+        //channel->registerObject(QStringLiteral("mainForm"), this);
         bodyWebView->page()->setWebChannel(channel);
         bodyWebView->setUrl(QUrl("qrc:/index.html"));
-
 
         //스플리터를 생성한다.
         previewSplitter = new QSplitter(Qt::Horizontal);
@@ -267,7 +267,7 @@ void MainForm::createContentPanel()
         connect(deleteContentButton, SIGNAL(clicked()), this, SLOT(deleteContent()));
         connect(confirmContentButton, SIGNAL(clicked()), this, SLOT(confirmContent()));
         connect(printBodyButton,SIGNAL(clicked()), this, SLOT(printBody()));
-        connect(printReportButton,SIGNAL(clicked()), this, SLOT(printReport()));
+        connect(printReportButton,SIGNAL(clicked()), this, SLOT(preparePrintData()));
     }
     //생성된 요소를 레이아웃에 담는다.
     {
@@ -699,10 +699,10 @@ void MainForm::addContent()
     int row = sqlDb->modelContent->rowCount();
     sqlDb->modelContent->insertRow(row);
     sqlDb->mapperContent->setCurrentIndex(row);
-
-    titleLineEdit->clear();
     bodyTextEdit->clear();
     titleComboBox->clearEditText();
+
+    titleLineEdit->clear();
     titleComboBox->setEditText("Select...");
 
     bodyWebView->setUrl(QUrl("qrc:/index.html"));
@@ -792,6 +792,7 @@ void MainForm::printBody()
     connect(prntPreviewDialog, SIGNAL(paintRequested(QPrinter*)), SLOT(slotPrint(QPrinter *)));
     prntPreviewDialog->exec();
 }
+//한페이지 인쇄
 void MainForm::slotPrint(QPrinter *printer)
 {
     QWebEngineView *webviewPrint = new QWebEngineView();
@@ -819,22 +820,32 @@ void MainForm::slotHandlePagePrinted(bool result)
 }
 
 //리포트 인쇄
+void MainForm::preparePrintData()
+{
+    for(int i =0; i<sqlDb->modelContent->rowCount();i++){
+        m_content.plainTextList.insert(i, sqlDb->modelContent->record(i).value("colBody").toString());
+    }
+    m_content.setPlainText();
+}
+
 void MainForm::printReport()
 {
     QString fileName = "printContentRpt.xml";
     reportDocument = new QtRPT;
     reportDocument->loadReport(fileName);
+
     reportDocument->recordCount.append(sqlDb->modelContent->rowCount());
     QObject::connect(reportDocument, SIGNAL(setValue(const int, const QString, QVariant&, const int)),
                      this, SLOT(setValue(const int, const QString, QVariant&, const int)));
     reportDocument->printExec();
 }
+
 void MainForm::setValue(const int recNo, const QString paramName, QVariant &paramValue, const int reportPage) {
     Q_UNUSED(reportPage);
     if (paramName == "title")
         paramValue = sqlDb->modelContent->record(recNo).value("colTitle").toString();
     if (paramName == "body")
-        paramValue = sqlDb->modelContent->record(recNo).value("colBody").toString();
+        paramValue = m_content.htmlTextList.at(recNo);
     if (paramName == "answer")
         paramValue = sqlDb->modelContent->record(recNo).value("colAnswer").toString();
 }

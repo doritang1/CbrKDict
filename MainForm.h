@@ -54,6 +54,9 @@ private slots:
     void slotPrint(QPrinter *);//printBody()에서 다시 호출
     void slotHandlePagePrinted(bool); //resullcallback
     void printReport(); //리포트 생성
+
+    //리포트에 연결할 데이터 준비
+    void preparePrintData();
     //리포트에 데이터 연결
     void setValue(const int recNo, const QString paramName, QVariant &paramValue, const int reportPage);
 private:
@@ -128,6 +131,7 @@ private:
     QSortFilterProxyModel *proxyModel;
 
     Document m_content;
+    QStringList *contentList;
 };
 
 #endif // MAINFORM_H

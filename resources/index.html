@@ -22,8 +22,15 @@
       var content = channel.objects.content;
       updateText(content.text);
       content.textChanged.connect(updateText);
+      content.plainTextLoaded.connect(function(text) {
+               //placeholder.innerHTML = placeholder.innerHTML + text;
+               content.setHtml(marked(text));
+               content.setDataCount();
+               content.setPlainText();
+      });
     }
   );
+
   </script>
 </body>
 </html>

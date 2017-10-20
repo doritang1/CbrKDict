@@ -23,9 +23,9 @@ public:
     QSqlTableModel *modelCategoryLevel1;
     QSqlTableModel *modelCategoryLevel2;
     QSqlTableModel *modelCategoryLevel3;
-
     QSqlTableModel *modelContent;
     QDataWidgetMapper *mapperContent;
+    QSqlTableModel *modelReport;
 
 private:
     //DB객체

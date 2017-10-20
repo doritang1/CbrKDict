@@ -53,21 +53,39 @@
 
 #include <QObject>
 #include <QString>
+#include <QMap>
 
 class Document : public QObject
 {
     Q_OBJECT
     Q_PROPERTY(QString text MEMBER m_text NOTIFY textChanged FINAL)
-public:
-    explicit Document(QObject *parent = nullptr) : QObject(parent) {}
-
-    void setText(const QString &text);
-
-signals:
-    void textChanged(const QString &text);
+    Q_PROPERTY(QString plainText MEMBER m_plainText NOTIFY plainTextLoaded FINAL)
+    Q_PROPERTY(QString htmlText MEMBER m_html NOTIFY htmlTextReceived FINAL)
+    Q_PROPERTY(int dataCount MEMBER m_dataNum NOTIFY dataCountChanged FINAL)
 
 private:
     QString m_text;
+    QString m_plainText;
+    QString m_html;
+    int m_dataNum = 0;
+
+public:
+    QMap<int, QString> plainTextList;
+    QStringList htmlTextList;
+    explicit Document(QObject *parent = nullptr);
+    void setText(const QString &text);
+
+
+signals:
+    void textChanged(const QString &text);
+    void dataCountChanged(const int);
+    void plainTextLoaded(const QString &plainText);
+    void htmlTextReceived();
+
+public slots:
+    void setHtml(const QString &html2);
+    void setDataCount(/*int*/);
+    void setPlainText();
 };
 
 #endif // DOCUMENT_H
