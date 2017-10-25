@@ -526,6 +526,7 @@ release\moc_MainForm.cpp: ..\..\Qt\5.9.1\msvc2017_64\include\QtWidgets\QWidget \
 		..\..\Qt\5.9.1\msvc2017_64\include\QtWidgets\qdatawidgetmapper.h \
 		document.h \
 		..\..\Qt\5.9.1\msvc2017_64\include\QtCore\QString \
+		..\..\Qt\5.9.1\msvc2017_64\include\QtCore\QMap \
 		..\..\Qt\5.9.1\msvc2017_64\include\QtWidgets\QVBoxLayout \
 		..\..\Qt\5.9.1\msvc2017_64\include\QtWidgets\qboxlayout.h \
 		..\..\Qt\5.9.1\msvc2017_64\include\QtWidgets\qlayout.h \
@@ -596,7 +597,6 @@ release\moc_MainForm.cpp: ..\..\Qt\5.9.1\msvc2017_64\include\QtWidgets\QWidget \
 		..\..\Qt\5.9.1\msvc2017_64\include\QtXml\QDomElement \
 		..\..\Qt\5.9.1\msvc2017_64\include\QtCore\QDebug \
 		..\CbrkDict\QtRptProject\CommonFiles\CommonClasses.h \
-		..\..\Qt\5.9.1\msvc2017_64\include\QtCore\QMap \
 		..\..\Qt\5.9.1\msvc2017_64\include\QtCore\QMetaEnum \
 		..\..\Qt\5.9.1\msvc2017_64\include\QtCore\QEvent \
 		..\..\Qt\5.9.1\msvc2017_64\include\QtCore\QtMath \
@@ -686,6 +686,21 @@ release\moc_document.cpp: ..\..\Qt\5.9.1\msvc2017_64\include\QtCore\QObject \
 		..\..\Qt\5.9.1\msvc2017_64\include\QtCore\qcontainerfwd.h \
 		..\..\Qt\5.9.1\msvc2017_64\include\QtCore\qobject_impl.h \
 		..\..\Qt\5.9.1\msvc2017_64\include\QtCore\QString \
+		..\..\Qt\5.9.1\msvc2017_64\include\QtCore\QMap \
+		..\..\Qt\5.9.1\msvc2017_64\include\QtCore\qmap.h \
+		..\..\Qt\5.9.1\msvc2017_64\include\QtCore\qdebug.h \
+		..\..\Qt\5.9.1\msvc2017_64\include\QtCore\qhash.h \
+		..\..\Qt\5.9.1\msvc2017_64\include\QtCore\qtextstream.h \
+		..\..\Qt\5.9.1\msvc2017_64\include\QtCore\qiodevice.h \
+		..\..\Qt\5.9.1\msvc2017_64\include\QtCore\qlocale.h \
+		..\..\Qt\5.9.1\msvc2017_64\include\QtCore\qvariant.h \
+		..\..\Qt\5.9.1\msvc2017_64\include\QtCore\qshareddata.h \
+		..\..\Qt\5.9.1\msvc2017_64\include\QtCore\qvector.h \
+		..\..\Qt\5.9.1\msvc2017_64\include\QtCore\qpoint.h \
+		..\..\Qt\5.9.1\msvc2017_64\include\QtCore\qset.h \
+		..\..\Qt\5.9.1\msvc2017_64\include\QtCore\qcontiguouscache.h \
+		..\..\Qt\5.9.1\msvc2017_64\include\QtCore\qsharedpointer.h \
+		..\..\Qt\5.9.1\msvc2017_64\include\QtCore\qsharedpointer_impl.h \
 		document.h \
 		release\moc_predefs.h \
 		..\..\Qt\5.9.1\msvc2017_64\bin\moc.exe
@@ -1460,6 +1475,7 @@ release\main.obj: main.cpp MainForm.h \
 		..\..\Qt\5.9.1\msvc2017_64\include\QtWidgets\qdatawidgetmapper.h \
 		document.h \
 		..\..\Qt\5.9.1\msvc2017_64\include\QtCore\QString \
+		..\..\Qt\5.9.1\msvc2017_64\include\QtCore\QMap \
 		..\..\Qt\5.9.1\msvc2017_64\include\QtWidgets\QVBoxLayout \
 		..\..\Qt\5.9.1\msvc2017_64\include\QtWidgets\qboxlayout.h \
 		..\..\Qt\5.9.1\msvc2017_64\include\QtWidgets\qlayout.h \
@@ -1530,7 +1546,6 @@ release\main.obj: main.cpp MainForm.h \
 		..\..\Qt\5.9.1\msvc2017_64\include\QtXml\QDomElement \
 		..\..\Qt\5.9.1\msvc2017_64\include\QtCore\QDebug \
 		../CbrkDict/QtRptProject/CommonFiles/CommonClasses.h \
-		..\..\Qt\5.9.1\msvc2017_64\include\QtCore\QMap \
 		..\..\Qt\5.9.1\msvc2017_64\include\QtCore\QMetaEnum \
 		..\..\Qt\5.9.1\msvc2017_64\include\QtCore\QEvent \
 		..\..\Qt\5.9.1\msvc2017_64\include\QtCore\QtMath \
@@ -1828,6 +1843,7 @@ release\MainForm.obj: MainForm.cpp MainForm.h \
 		..\..\Qt\5.9.1\msvc2017_64\include\QtWidgets\qdatawidgetmapper.h \
 		document.h \
 		..\..\Qt\5.9.1\msvc2017_64\include\QtCore\QString \
+		..\..\Qt\5.9.1\msvc2017_64\include\QtCore\QMap \
 		..\..\Qt\5.9.1\msvc2017_64\include\QtWidgets\QVBoxLayout \
 		..\..\Qt\5.9.1\msvc2017_64\include\QtWidgets\qboxlayout.h \
 		..\..\Qt\5.9.1\msvc2017_64\include\QtWidgets\qlayout.h \
@@ -1898,7 +1914,6 @@ release\MainForm.obj: MainForm.cpp MainForm.h \
 		..\..\Qt\5.9.1\msvc2017_64\include\QtXml\QDomElement \
 		..\..\Qt\5.9.1\msvc2017_64\include\QtCore\QDebug \
 		../CbrkDict/QtRptProject/CommonFiles/CommonClasses.h \
-		..\..\Qt\5.9.1\msvc2017_64\include\QtCore\QMap \
 		..\..\Qt\5.9.1\msvc2017_64\include\QtCore\QMetaEnum \
 		..\..\Qt\5.9.1\msvc2017_64\include\QtCore\QEvent \
 		..\..\Qt\5.9.1\msvc2017_64\include\QtCore\QtMath \
@@ -2254,10 +2269,10 @@ release\document.obj: document.cpp document.h \
 		..\..\Qt\5.9.1\msvc2017_64\include\QtCore\qcontainerfwd.h \
 		..\..\Qt\5.9.1\msvc2017_64\include\QtCore\qobject_impl.h \
 		..\..\Qt\5.9.1\msvc2017_64\include\QtCore\QString \
-		..\..\Qt\5.9.1\msvc2017_64\include\QtCore\QDebug \
+		..\..\Qt\5.9.1\msvc2017_64\include\QtCore\QMap \
+		..\..\Qt\5.9.1\msvc2017_64\include\QtCore\qmap.h \
 		..\..\Qt\5.9.1\msvc2017_64\include\QtCore\qdebug.h \
 		..\..\Qt\5.9.1\msvc2017_64\include\QtCore\qhash.h \
-		..\..\Qt\5.9.1\msvc2017_64\include\QtCore\qmap.h \
 		..\..\Qt\5.9.1\msvc2017_64\include\QtCore\qtextstream.h \
 		..\..\Qt\5.9.1\msvc2017_64\include\QtCore\qiodevice.h \
 		..\..\Qt\5.9.1\msvc2017_64\include\QtCore\qlocale.h \
@@ -2268,7 +2283,8 @@ release\document.obj: document.cpp document.h \
 		..\..\Qt\5.9.1\msvc2017_64\include\QtCore\qset.h \
 		..\..\Qt\5.9.1\msvc2017_64\include\QtCore\qcontiguouscache.h \
 		..\..\Qt\5.9.1\msvc2017_64\include\QtCore\qsharedpointer.h \
-		..\..\Qt\5.9.1\msvc2017_64\include\QtCore\qsharedpointer_impl.h
+		..\..\Qt\5.9.1\msvc2017_64\include\QtCore\qsharedpointer_impl.h \
+		..\..\Qt\5.9.1\msvc2017_64\include\QtCore\QDebug
 
 release\CommonClasses.obj: ..\CbrkDict\QtRptProject\CommonFiles\CommonClasses.cpp ../CbrkDict/QtRptProject/CommonFiles/CommonClasses.h \
 		..\..\Qt\5.9.1\msvc2017_64\include\QtCore\QMap \

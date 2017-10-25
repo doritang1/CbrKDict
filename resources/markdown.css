@@ -102,16 +102,10 @@ hr {
 }
 
 /* Code concerning styles for table, th, td are inserted by CyberK without any copyright */
-table {
-    border-collapse: collapse;
-}
-th{
-    border: 1px solid gray;
-    background-color: lightgray;
-}
-td{
-    border: 1px solid gray;
-}
+
+table{border-collapse: collapse;}
+th{border: 1px solid black; background-color: lightgray;}
+td{border: 1px solid black;}
 
 /* Code below this line is copyright Twitter Inc. */
 

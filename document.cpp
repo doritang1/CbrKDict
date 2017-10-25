@@ -80,13 +80,7 @@ void Document::setPlainText()
 }
 
 //변환된 html을 저장
-void Document::setHtml(const QString &html2)
+void Document::setHtml(const QString html2)
 {
     htmlTextList.insert(m_dataNum, html2);
 }
-
-
-
-
-
-

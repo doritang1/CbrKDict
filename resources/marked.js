@@ -822,8 +822,9 @@ Renderer.prototype.paragraph = function(text) {
   return '<p>' + text + '</p>\n';
 };
 
+//an attribute(border="2") was added by CyberK to render table borders in QtRpt.
 Renderer.prototype.table = function(header, body) {
-  return '<table>\n'
+  return '<table border="2">\n'
     + '<thead>\n'
     + header
     + '</thead>\n'
@@ -837,10 +838,11 @@ Renderer.prototype.tablerow = function(content) {
   return '<tr>\n' + content + '</tr>\n';
 };
 
+//an attribute(bgcolor="lightgray") was added by CyberK to apply a color to header cells
 Renderer.prototype.tablecell = function(content, flags) {
-  var type = flags.header ? 'th' : 'td';
+  var type = flags.header ? 'th bgcolor="lime"' : 'td';
   var tag = flags.align
-    ? '<' + type + ' style="text-align:' + flags.align + '">'
+    ? '<' + type + ' style="text-align:' + flags.align + '>'
     : '<' + type + '>';
   return tag + content + '</' + type + '>\n';
 };

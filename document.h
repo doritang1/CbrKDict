@@ -83,7 +83,7 @@ signals:
     void htmlTextReceived();
 
 public slots:
-    void setHtml(const QString &html2);
+    void setHtml(const QString html2);
     void setDataCount(/*int*/);
     void setPlainText();
 };
