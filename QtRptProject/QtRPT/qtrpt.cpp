@@ -654,6 +654,7 @@ void QtRPT::drawFields(RptFieldObject *fieldObject, int bandTop, bool draw) {
         }
     }
     if (fieldType == TextRich) {
+        //QString txt = fieldObject->value;
         QString txt = sectionField(fieldObject->parentBand, fieldObject->value, false, false, fieldObject->formatString);
 
         QTextDocument document;
@@ -666,9 +667,10 @@ void QtRPT::drawFields(RptFieldObject *fieldObject, int bandTop, bool draw) {
                 QTextFragment currentFragment = it.fragment();
                 if (!currentFragment.isValid())
                     continue;
-
-                if ((currentFragment.text().contains("[") && currentFragment.text().contains("]")) ||
-                    (currentFragment.text().contains("<") && currentFragment.text().contains(">")))
+                //원래 <>나 []는 필드의 조건문임. sum등의 계산식 등을 표현함.
+                //따라서 이 프로그램에서는 필요 없으므로 문장 중간에 <>나 []가 나오더라도 무시하도록 수정함
+                if ((currentFragment.text().contains("[") && currentFragment.text().contains("]"))/* ||
+                    (currentFragment.text().contains("<") && currentFragment.text().contains(">"))*/)   // <-수정부분1
                 {
                     QString tmpTxt = sectionField(fieldObject->parentBand, currentFragment.text(), false, false, "");
                     QTextCursor c = document.find(currentFragment.text(),0,QTextDocument::FindWholeWords);
@@ -679,7 +681,8 @@ void QtRPT::drawFields(RptFieldObject *fieldObject, int bandTop, bool draw) {
                         int end = tmpTxt.toLower().indexOf("</body>")+1;
                         c.insertHtml(tmpTxt.mid(start,end));
                     } else
-                        c.insertText(tmpTxt);
+                        c.insertText(currentFragment.text());  // <-수정부분2
+                        //c.insertText(tmpTxt);
                 }
             }
             block = block.next();
