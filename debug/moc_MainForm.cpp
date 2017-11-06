@@ -21,8 +21,8 @@ QT_BEGIN_MOC_NAMESPACE
 QT_WARNING_PUSH
 QT_WARNING_DISABLE_DEPRECATED
 struct qt_meta_stringdata_MainForm_t {
-    QByteArrayData data[33];
-    char stringdata0[453];
+    QByteArrayData data[32];
+    char stringdata0[440];
 };
 #define QT_MOC_LITERAL(idx, ofs, len) \
     Q_STATIC_BYTE_ARRAY_DATA_HEADER_INITIALIZER_WITH_OFFSET(len, \
@@ -56,14 +56,13 @@ QT_MOC_LITERAL(21, 312, 9), // "slotPrint"
 QT_MOC_LITERAL(22, 322, 9), // "QPrinter*"
 QT_MOC_LITERAL(23, 332, 21), // "slotHandlePagePrinted"
 QT_MOC_LITERAL(24, 354, 11), // "printReport"
-QT_MOC_LITERAL(25, 366, 12), // "showDictForm"
-QT_MOC_LITERAL(26, 379, 16), // "preparePrintData"
-QT_MOC_LITERAL(27, 396, 8), // "setValue"
-QT_MOC_LITERAL(28, 405, 5), // "recNo"
-QT_MOC_LITERAL(29, 411, 9), // "paramName"
-QT_MOC_LITERAL(30, 421, 9), // "QVariant&"
-QT_MOC_LITERAL(31, 431, 10), // "paramValue"
-QT_MOC_LITERAL(32, 442, 10) // "reportPage"
+QT_MOC_LITERAL(25, 366, 16), // "preparePrintData"
+QT_MOC_LITERAL(26, 383, 8), // "setValue"
+QT_MOC_LITERAL(27, 392, 5), // "recNo"
+QT_MOC_LITERAL(28, 398, 9), // "paramName"
+QT_MOC_LITERAL(29, 408, 9), // "QVariant&"
+QT_MOC_LITERAL(30, 418, 10), // "paramValue"
+QT_MOC_LITERAL(31, 429, 10) // "reportPage"
 
     },
     "MainForm\0updateCategoryLevel1ListView\0"
@@ -76,9 +75,9 @@ QT_MOC_LITERAL(32, 442, 10) // "reportPage"
     "confirmContent\0contentFromTableModel\0"
     "contentFromQueryModel\0printBody\0"
     "slotPrint\0QPrinter*\0slotHandlePagePrinted\0"
-    "printReport\0showDictForm\0preparePrintData\0"
-    "setValue\0recNo\0paramName\0QVariant&\0"
-    "paramValue\0reportPage"
+    "printReport\0preparePrintData\0setValue\0"
+    "recNo\0paramName\0QVariant&\0paramValue\0"
+    "reportPage"
 };
 #undef QT_MOC_LITERAL
 
@@ -88,7 +87,7 @@ static const uint qt_meta_data_MainForm[] = {
        7,       // revision
        0,       // classname
        0,    0, // classinfo
-      22,   14, // methods
+      21,   14, // methods
        0,    0, // properties
        0,    0, // enums/sets
        0,    0, // constructors
@@ -96,28 +95,27 @@ static const uint qt_meta_data_MainForm[] = {
        0,       // signalCount
 
  // slots: name, argc, parameters, tag, flags
-       1,    0,  124,    2, 0x08 /* Private */,
-       3,    0,  125,    2, 0x08 /* Private */,
-       4,    0,  126,    2, 0x08 /* Private */,
-       5,    0,  127,    2, 0x08 /* Private */,
-       6,    2,  128,    2, 0x08 /* Private */,
-      10,    0,  133,    2, 0x08 /* Private */,
-      11,    0,  134,    2, 0x08 /* Private */,
-      12,    0,  135,    2, 0x08 /* Private */,
-      13,    0,  136,    2, 0x08 /* Private */,
-      14,    0,  137,    2, 0x08 /* Private */,
-      15,    0,  138,    2, 0x08 /* Private */,
-      16,    0,  139,    2, 0x08 /* Private */,
-      17,    0,  140,    2, 0x08 /* Private */,
-      18,    1,  141,    2, 0x08 /* Private */,
-      19,    1,  144,    2, 0x08 /* Private */,
-      20,    0,  147,    2, 0x08 /* Private */,
-      21,    1,  148,    2, 0x08 /* Private */,
-      23,    1,  151,    2, 0x08 /* Private */,
-      24,    0,  154,    2, 0x08 /* Private */,
-      25,    0,  155,    2, 0x08 /* Private */,
-      26,    0,  156,    2, 0x08 /* Private */,
-      27,    4,  157,    2, 0x08 /* Private */,
+       1,    0,  119,    2, 0x08 /* Private */,
+       3,    0,  120,    2, 0x08 /* Private */,
+       4,    0,  121,    2, 0x08 /* Private */,
+       5,    0,  122,    2, 0x08 /* Private */,
+       6,    2,  123,    2, 0x08 /* Private */,
+      10,    0,  128,    2, 0x08 /* Private */,
+      11,    0,  129,    2, 0x08 /* Private */,
+      12,    0,  130,    2, 0x08 /* Private */,
+      13,    0,  131,    2, 0x08 /* Private */,
+      14,    0,  132,    2, 0x08 /* Private */,
+      15,    0,  133,    2, 0x08 /* Private */,
+      16,    0,  134,    2, 0x08 /* Private */,
+      17,    0,  135,    2, 0x08 /* Private */,
+      18,    1,  136,    2, 0x08 /* Private */,
+      19,    1,  139,    2, 0x08 /* Private */,
+      20,    0,  142,    2, 0x08 /* Private */,
+      21,    1,  143,    2, 0x08 /* Private */,
+      23,    1,  146,    2, 0x08 /* Private */,
+      24,    0,  149,    2, 0x08 /* Private */,
+      25,    0,  150,    2, 0x08 /* Private */,
+      26,    4,  151,    2, 0x08 /* Private */,
 
  // slots: parameters
     QMetaType::Void,
@@ -140,8 +138,7 @@ static const uint qt_meta_data_MainForm[] = {
     QMetaType::Void, QMetaType::Bool,    2,
     QMetaType::Void,
     QMetaType::Void,
-    QMetaType::Void,
-    QMetaType::Void, QMetaType::Int, QMetaType::QString, 0x80000000 | 30, QMetaType::Int,   28,   29,   31,   32,
+    QMetaType::Void, QMetaType::Int, QMetaType::QString, 0x80000000 | 29, QMetaType::Int,   27,   28,   30,   31,
 
        0        // eod
 };
@@ -171,9 +168,8 @@ void MainForm::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int _id, vo
         case 16: _t->slotPrint((*reinterpret_cast< QPrinter*(*)>(_a[1]))); break;
         case 17: _t->slotHandlePagePrinted((*reinterpret_cast< bool(*)>(_a[1]))); break;
         case 18: _t->printReport(); break;
-        case 19: _t->showDictForm(); break;
-        case 20: _t->preparePrintData(); break;
-        case 21: _t->setValue((*reinterpret_cast< const int(*)>(_a[1])),(*reinterpret_cast< const QString(*)>(_a[2])),(*reinterpret_cast< QVariant(*)>(_a[3])),(*reinterpret_cast< const int(*)>(_a[4]))); break;
+        case 19: _t->preparePrintData(); break;
+        case 20: _t->setValue((*reinterpret_cast< const int(*)>(_a[1])),(*reinterpret_cast< const QString(*)>(_a[2])),(*reinterpret_cast< QVariant(*)>(_a[3])),(*reinterpret_cast< const int(*)>(_a[4]))); break;
         default: ;
         }
     } else if (_c == QMetaObject::RegisterMethodArgumentMetaType) {
@@ -216,13 +212,13 @@ int MainForm::qt_metacall(QMetaObject::Call _c, int _id, void **_a)
     if (_id < 0)
         return _id;
     if (_c == QMetaObject::InvokeMetaMethod) {
-        if (_id < 22)
+        if (_id < 21)
             qt_static_metacall(this, _c, _id, _a);
-        _id -= 22;
+        _id -= 21;
     } else if (_c == QMetaObject::RegisterMethodArgumentMetaType) {
-        if (_id < 22)
+        if (_id < 21)
             qt_static_metacall(this, _c, _id, _a);
-        _id -= 22;
+        _id -= 21;
     }
     return _id;
 }
