@@ -17,6 +17,8 @@
 #include <QPrintPreviewDialog>
 #include "qtrpt.h"
 #include <QWebEngineView>
+#include "CyDictEditor.h"
+#include "ui_CyDictEditor.h"
 
 class MainForm : public QWidget
 {
@@ -54,6 +56,8 @@ private slots:
     void slotPrint(QPrinter *);//printBody()에서 다시 호출
     void slotHandlePagePrinted(bool); //resullcallback
     void printReport(); //리포트 생성
+
+    void showDictForm();//CyDictEditor를 다이얼로그 형식으로 띄움
 
     //리포트에 연결할 데이터 준비
     void preparePrintData();
@@ -113,6 +117,8 @@ private:
                 QPushButton *confirmContentButton;
                 QPushButton *printBodyButton;
                 QPushButton *printReportButton;
+
+                QPushButton *showDictEditorButton;
 
 
     //전체 레이아웃을 잡아줄 스플리터
