@@ -252,6 +252,7 @@ void MainForm::createContentPanel()
         printBodyButton = new QPushButton(tr("Print"));
         printReportButton = new QPushButton(tr("Report"));
 
+        showDictEditorButton = new QPushButton(tr("DictEditor"));
 
         contentDialogButtonBox = new QDialogButtonBox;
         contentDialogButtonBox->addButton(addContentButton, QDialogButtonBox::ActionRole);
@@ -259,6 +260,8 @@ void MainForm::createContentPanel()
         contentDialogButtonBox->addButton(confirmContentButton, QDialogButtonBox::ActionRole);
         contentDialogButtonBox->addButton(printBodyButton,QDialogButtonBox::ActionRole);
         contentDialogButtonBox->addButton(printReportButton, QDialogButtonBox::ActionRole);
+
+        contentDialogButtonBox->addButton(showDictEditorButton, QDialogButtonBox::ActionRole);
     }
     //조작버튼을 슬롯함수와 연결
     {
@@ -268,6 +271,8 @@ void MainForm::createContentPanel()
         connect(confirmContentButton, SIGNAL(clicked()), this, SLOT(confirmContent()));
         connect(printBodyButton,SIGNAL(clicked()), this, SLOT(printBody()));
         connect(printReportButton,SIGNAL(clicked()), this, SLOT(preparePrintData()));
+
+        connect(showDictEditorButton,SIGNAL(clicked()), this, SLOT(showDictForm()));
     }
     //생성된 요소를 레이아웃에 담는다.
     {
@@ -850,3 +855,8 @@ void MainForm::setValue(const int recNo, const QString paramName, QVariant &para
         paramValue = sqlDb->modelContent->record(recNo).value("colAnswer").toString();
 }
 
+void MainForm::showDictForm()
+{
+    CyDictEditor *editor = new CyDictEditor;
+    editor->show();
+}

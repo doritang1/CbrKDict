@@ -4,7 +4,7 @@
 #
 #-------------------------------------------------
 
-QT       += sql core gui printsupport webenginewidgets
+QT       += sql core gui xml printsupport webenginewidgets
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
@@ -24,6 +24,7 @@ RESOURCES = \
     resources/markdowneditor.qrc
 
 include(../CbrkDict/QtRptProject/QtRPT/QtRPT.pri)
+include(../CbrkDict/CyDictEditor/CyDictEditor.pri)
 
 DISTFILES += \
     3RDPARTY.md
