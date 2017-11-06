@@ -82,5 +82,11 @@ void Document::setPlainText()
 //변환된 html을 저장
 void Document::setHtml(const QString html2)
 {
-    htmlTextList.insert(m_dataNum, html2);
+    //인쇄할 때 불릿이 튀어나와 있으면 잘린다.
+    //그래서 마진을 줘서 안쪽으로 당겨 넣었다.
+    QString html3 = "<style>"
+                    "li{margin-left: 4.4em;}"
+                    "</style>"+html2;
+
+    htmlTextList.insert(m_dataNum, html3);
 }
