@@ -15,10 +15,16 @@ TEMPLATE = app
 SOURCES += main.cpp\
         MainForm.cpp\
         ckdbengine.cpp \
-        document.cpp
-HEADERS  += MainForm.h\
+        document.cpp \
+        CyDictEditor.cpp \
+        htmlnamedentityresolver.cpp
+HEADERS += MainForm.h\
         ckdbengine.h \
-        document.h
+        document.h \
+        CyDictEditor.cpp \
+        htmlnamedentityresolver.cpp
+
+FORMS   += CyDictEditor.ui
 
 RESOURCES = \
     resources/markdowneditor.qrc

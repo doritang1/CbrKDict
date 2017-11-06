@@ -19,11 +19,8 @@
 #include <QtWidgets/QLabel>
 #include <QtWidgets/QLineEdit>
 #include <QtWidgets/QListView>
-#include <QtWidgets/QMenuBar>
 #include <QtWidgets/QPlainTextEdit>
 #include <QtWidgets/QPushButton>
-#include <QtWidgets/QStatusBar>
-#include <QtWidgets/QToolBar>
 #include <QtWidgets/QToolButton>
 #include <QtWidgets/QVBoxLayout>
 #include <QtWidgets/QWidget>
@@ -64,18 +61,15 @@ public:
     QPushButton *pushButtonCreateDict;
     QPushButton *pushButton;
     QLabel *label_3;
-    QMenuBar *menuBar;
-    QToolBar *mainToolBar;
-    QStatusBar *statusBar;
 
     void setupUi(QDialog *CyDictEditor)
     {
         if (CyDictEditor->objectName().isEmpty())
             CyDictEditor->setObjectName(QStringLiteral("CyDictEditor"));
-        CyDictEditor->resize(1187, 584);
+        CyDictEditor->resize(1139, 568);
         layoutWidget = new QWidget(CyDictEditor);
         layoutWidget->setObjectName(QStringLiteral("layoutWidget"));
-        layoutWidget->setGeometry(QRect(11, 21, 260, 551));
+        layoutWidget->setGeometry(QRect(11, 10, 260, 551));
         verticalLayout_4 = new QVBoxLayout(layoutWidget);
         verticalLayout_4->setSpacing(6);
         verticalLayout_4->setContentsMargins(11, 11, 11, 11);
@@ -116,7 +110,7 @@ public:
 
         layoutWidget1 = new QWidget(CyDictEditor);
         layoutWidget1->setObjectName(QStringLiteral("layoutWidget1"));
-        layoutWidget1->setGeometry(QRect(277, 21, 561, 551));
+        layoutWidget1->setGeometry(QRect(277, 10, 561, 551));
         verticalLayout_5 = new QVBoxLayout(layoutWidget1);
         verticalLayout_5->setSpacing(6);
         verticalLayout_5->setContentsMargins(11, 11, 11, 11);
@@ -178,7 +172,7 @@ public:
 
         layoutWidget2 = new QWidget(CyDictEditor);
         layoutWidget2->setObjectName(QStringLiteral("layoutWidget2"));
-        layoutWidget2->setGeometry(QRect(850, 20, 327, 551));
+        layoutWidget2->setGeometry(QRect(850, 9, 277, 551));
         verticalLayout_6 = new QVBoxLayout(layoutWidget2);
         verticalLayout_6->setSpacing(6);
         verticalLayout_6->setContentsMargins(11, 11, 11, 11);
@@ -232,15 +226,6 @@ public:
 
         verticalLayout_6->addWidget(label_3);
 
-        menuBar = new QMenuBar(CyDictEditor);
-        menuBar->setObjectName(QStringLiteral("menuBar"));
-        menuBar->setGeometry(QRect(0, 0, 1139, 21));
-        mainToolBar = new QToolBar(CyDictEditor);
-        mainToolBar->setObjectName(QStringLiteral("mainToolBar"));
-        mainToolBar->setGeometry(QRect(0, 0, 4, 12));
-        statusBar = new QStatusBar(CyDictEditor);
-        statusBar->setObjectName(QStringLiteral("statusBar"));
-        statusBar->setGeometry(QRect(0, 0, 3, 18));
 
         retranslateUi(CyDictEditor);
 
@@ -249,7 +234,7 @@ public:
 
     void retranslateUi(QDialog *CyDictEditor)
     {
-        CyDictEditor->setWindowTitle(QApplication::translate("CyDictEditor", "CyDictEditor", Q_NULLPTR));
+        CyDictEditor->setWindowTitle(QApplication::translate("CyDictEditor", "MainWindow", Q_NULLPTR));
         toolButtonFileSelect->setText(QApplication::translate("CyDictEditor", "...", Q_NULLPTR));
         label->setText(QApplication::translate("CyDictEditor", "<Select Source Files>", Q_NULLPTR));
         pushButtonValidate->setText(QApplication::translate("CyDictEditor", "Validate", Q_NULLPTR));
@@ -257,11 +242,7 @@ public:
         pushButtonMerge->setText(QApplication::translate("CyDictEditor", "Merge", Q_NULLPTR));
         pushButtonSplit->setText(QApplication::translate("CyDictEditor", "Split", Q_NULLPTR));
         label_2->setText(QApplication::translate("CyDictEditor", "<Split Word and Definition parts>", Q_NULLPTR));
-        label_4->setText(QApplication::translate("CyDictEditor", "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n"
-"<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/css\">\n"
-"p, li { white-space: pre-wrap; }\n"
-"</style></head><body style=\" font-family:'Gulim'; font-size:9pt; font-weight:400; font-style:normal;\">\n"
-"<p style=\" margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-weight:600;\">&lt;\342\226\262From Memory&gt;   &lt;From File\342\226\274&gt;</span></p></body></html>", Q_NULLPTR));
+        label_4->setText(QApplication::translate("CyDictEditor", "<html><head/><body><p><span style=\" font-size:9pt; font-weight:600;\">&lt;\342\226\262From Memory\342\226\262&gt;&lt;\342\226\274From File\342\226\274&gt;</span></p></body></html>", Q_NULLPTR));
         pushButtonCreateDict->setText(QApplication::translate("CyDictEditor", "Create Dict", Q_NULLPTR));
         pushButton->setText(QApplication::translate("CyDictEditor", "PushButton", Q_NULLPTR));
         label_3->setText(QApplication::translate("CyDictEditor", "<Create ifo, idx, dict files>", Q_NULLPTR));
