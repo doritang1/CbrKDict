@@ -15,6 +15,9 @@ MainForm::MainForm(QWidget *parent)
     //화면에 표시할 요소들을 담은 패널(프레임)을 생성한다.
     createCategoryPanel();
     createContentPanel();
+    //메뉴항목을 생성한다.
+    createActions();
+    createMenus();
 
     ///메인레이아웃 생성
     {
@@ -28,10 +31,12 @@ MainForm::MainForm(QWidget *parent)
         mainSplitter->addWidget(contentPanel);
         mainSplitter->setStretchFactor(1,1);
 
-        //레이아웃을 생성하여 스플리터를 붙인다.
+        //레이아웃을 생성하여 메뉴바와 스플리터를 붙인다.
 
         mainLayout = new QVBoxLayout;
+        mainLayout->addWidget(menuBar);
         mainLayout->addWidget(mainSplitter);
+
         setLayout(mainLayout);
     }
 }
@@ -39,6 +44,21 @@ MainForm::MainForm(QWidget *parent)
 MainForm::~MainForm()
 {
 
+}
+void MainForm::createMenus()
+{
+    //메뉴바를 만든다.
+    menuBar = new QMenuBar(this);
+    menuBar->setFixedHeight(20);
+    menuBar->setStyleSheet("background-color: qlineargradient(x1:0, y1:0, x2:0, y2:1, stop:0 lightgray, stop:1 darkgray);");
+    appMenu = menuBar->addMenu(tr("&Apps"));
+    appMenu->addAction(showDictFormAction);
+}
+
+void MainForm::createActions()
+{
+    showDictFormAction = new QAction(tr("&CyDictEditor"), this);
+    connect(showDictFormAction, SIGNAL(triggered()), this, SLOT(showDictForm()));
 }
 
 //Category를 표시할 패널을 생성한다.
@@ -252,16 +272,12 @@ void MainForm::createContentPanel()
         printBodyButton = new QPushButton(tr("Print"));
         printReportButton = new QPushButton(tr("Report"));
 
-        showDictEditorButton = new QPushButton(tr("DictEditor"));
-
         contentDialogButtonBox = new QDialogButtonBox;
         contentDialogButtonBox->addButton(addContentButton, QDialogButtonBox::ActionRole);
         contentDialogButtonBox->addButton(deleteContentButton, QDialogButtonBox::ActionRole);
         contentDialogButtonBox->addButton(confirmContentButton, QDialogButtonBox::ActionRole);
         contentDialogButtonBox->addButton(printBodyButton,QDialogButtonBox::ActionRole);
         contentDialogButtonBox->addButton(printReportButton, QDialogButtonBox::ActionRole);
-
-        contentDialogButtonBox->addButton(showDictEditorButton, QDialogButtonBox::ActionRole);
     }
     //조작버튼을 슬롯함수와 연결
     {
@@ -271,8 +287,6 @@ void MainForm::createContentPanel()
         connect(confirmContentButton, SIGNAL(clicked()), this, SLOT(confirmContent()));
         connect(printBodyButton,SIGNAL(clicked()), this, SLOT(printBody()));
         connect(printReportButton,SIGNAL(clicked()), this, SLOT(preparePrintData()));
-
-        connect(showDictEditorButton,SIGNAL(clicked()), this, SLOT(showDictForm()));
     }
     //생성된 요소를 레이아웃에 담는다.
     {

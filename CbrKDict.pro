@@ -21,8 +21,8 @@ SOURCES += main.cpp\
 HEADERS += MainForm.h\
         ckdbengine.h \
         document.h \
-        CyDictEditor.cpp \
-        htmlnamedentityresolver.cpp
+        CyDictEditor.h \
+        htmlnamedentityresolver.h
 
 FORMS   += CyDictEditor.ui
 
@@ -30,7 +30,6 @@ RESOURCES = \
     resources/markdowneditor.qrc
 
 include(../CbrkDict/QtRptProject/QtRPT/QtRPT.pri)
-include(../CbrkDict/CyDictEditor/CyDictEditor.pri)
 
 DISTFILES += \
     3RDPARTY.md

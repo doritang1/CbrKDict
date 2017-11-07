@@ -234,7 +234,7 @@ public:
 
     void retranslateUi(QDialog *CyDictEditor)
     {
-        CyDictEditor->setWindowTitle(QApplication::translate("CyDictEditor", "MainWindow", Q_NULLPTR));
+        CyDictEditor->setWindowTitle(QApplication::translate("CyDictEditor", "CyDictEditor", Q_NULLPTR));
         toolButtonFileSelect->setText(QApplication::translate("CyDictEditor", "...", Q_NULLPTR));
         label->setText(QApplication::translate("CyDictEditor", "<Select Source Files>", Q_NULLPTR));
         pushButtonValidate->setText(QApplication::translate("CyDictEditor", "Validate", Q_NULLPTR));

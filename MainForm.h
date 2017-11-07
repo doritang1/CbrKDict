@@ -19,6 +19,9 @@
 #include <QWebEngineView>
 #include "CyDictEditor.h"
 #include "ui_CyDictEditor.h"
+#include <QMenuBar>
+#include <QMenu>
+#include <QAction>
 
 class MainForm : public QWidget
 {
@@ -65,6 +68,8 @@ private slots:
     void setValue(const int recNo, const QString paramName, QVariant &paramValue, const int reportPage);
 private:
     //화면 구성요소 생성 함수
+    void createMenus();
+    void createActions();
     void createCategoryPanel();
     void createContentPanel();
     void changeModel(QSqlQueryModel *);
@@ -118,9 +123,6 @@ private:
                 QPushButton *printBodyButton;
                 QPushButton *printReportButton;
 
-                QPushButton *showDictEditorButton;
-
-
     //전체 레이아웃을 잡아줄 스플리터
     QSplitter *mainSplitter;
 
@@ -130,12 +132,18 @@ private:
     //인쇄관련
     QtRPT *reportDocument;
 
+    //메뉴관련
+    QMenuBar *menuBar;
+    QMenu *appMenu;
+    QAction *showDictFormAction;
+
     //기타
     QPrinter *prntDevice;
     QPrintPreviewDialog *prntPreviewDialog;
     QSqlQueryModel *queryModel;
     QSortFilterProxyModel *proxyModel;
 
+    //webengineview를 위한 html생성
     Document m_content;
     QStringList *contentList;
 };
