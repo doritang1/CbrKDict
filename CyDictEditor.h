@@ -47,7 +47,6 @@ private slots:
     void on_listViewWordFromFile_clicked(const QModelIndex &index);
 
     void on_pushButton_clicked();
-    void showTitles();
 
 private:
     Ui::CyDictEditor *ui;
@@ -61,22 +60,25 @@ private:
     QStringList *strlstHtmls;
 
     //파일에 저장하기 전에 임시로 쓰는 자료구조
-    QMultiMap<QString, int> *mltmapTitles;
-    QMap<int, QString> *mapDefinitions;
+    QMultiMap<QString, int> mltmapTitles;
+    QMap<int, QString> mapDefinitions;
     //파일에 저장된 타이틀을 불러올 때 쓰는 자료구조
     QMultiMap<QString, _position> mltmapWords;
     QString strFileName;
 
-    void readHtmlElement(QXmlStreamReader &, int &);
-    void readHeadElement(QXmlStreamReader &, int &);
-    void readTitleElement(QXmlStreamReader &, int &);
-    void readBodyElement(QXmlStreamReader &, int &);
-    void readPElement(QXmlStreamReader &, int &);
-    void skipUnknownElement(QXmlStreamReader &);
+    QXmlStreamReader reader;
+    int counterWord;
+
+    void readHtmlElement();
+    void readHeadElement();
+    void readTitleElement();
+    void readBodyElement();
+    void readPElement();
+    void skipUnknownElement();
 
     bool validateHtml(QString *);
 
-    void splitHtml(QString &, int &);
+    void splitHtml(QString);
 
     void createDict(QString &dictionaryName);
     void loadDict(QString &strFilePath);
