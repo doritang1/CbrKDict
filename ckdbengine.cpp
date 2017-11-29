@@ -42,6 +42,12 @@ bool CKDBEngine::connectDb(const QString &dbType, const QString &fileName)
 
          modelReport = new QSqlTableModel();
          modelReport->setTable("tblReport");
+
+         modelTask = new QSqlTableModel();
+         modelTask->setTable("tblTask");
+         modelTask->setHeaderData(0, Qt::Horizontal, "Today");
+         modelTask->setHeaderData(1, Qt::Horizontal, "DateOnschedule");
+         modelTask->setHeaderData(2, Qt::Horizontal, "WhatToDo");
     }
      return true;
 }

@@ -22,6 +22,7 @@
 #include <QMenuBar>
 #include <QMenu>
 #include <QAction>
+#include <QDateEdit>
 
 class MainForm : public QWidget
 {
@@ -115,6 +116,10 @@ private:
                 QSplitter *previewSplitter;
                 QWebEngineView *bodyWebView;
             QTableView *contentTableView;
+
+            QDateEdit *todayDateEdit;
+            QDateEdit *scheduleDateEdit;
+
             //조작버튼들(Content 패널용)
             QDialogButtonBox *contentDialogButtonBox;
                 QPushButton *addContentButton;
@@ -122,6 +127,7 @@ private:
                 QPushButton *confirmContentButton;
                 QPushButton *printBodyButton;
                 QPushButton *printReportButton;
+
 
     //전체 레이아웃을 잡아줄 스플리터
     QSplitter *mainSplitter;

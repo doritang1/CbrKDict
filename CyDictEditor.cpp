@@ -5,7 +5,7 @@
 #include <QFileDialog>
 #include <QMessageBox>
 #include <QDebug>
-
+#include <QMultiMap>
 #include <stdio.h> //FILE
 #include <winsock.h> //htonl, ntohl함수
 
@@ -13,7 +13,6 @@
 
 #include <sys/types.h>
 #include <sys/stat.h> //stat()함수
-
 
 CyDictEditor::CyDictEditor(QWidget *parent) :
     QDialog(parent)
@@ -33,16 +32,22 @@ void CyDictEditor::on_toolButtonFileSelect_clicked()
     dirSource.setCurrent(QFileDialog::getExistingDirectory(this, tr("Select Directory"), "C:/CyberK/QtProjects/dictionary6/merge", QFileDialog::ShowDirsOnly));
     lineEditSourceFile->setText(dirSource.absolutePath());
 
-    //filter를 적용하여 작업 Directory 안의 파일들을 추려낸다.
-    QStringList filters;
-    filters<<"*.htm";
-    listSources = new QStringList(dirSource.entryList(filters));
+    progressbarFiles->setMinimum(0); //minimum과 maximum이 모두 0이면 busy indicator로 작동한다.
+    progressbarFiles->setMaximum(0);
+    progressbarFiles->show();
+    {
+        //filter를 적용하여 작업 Directory 안의 파일들을 추려낸다.
+        QStringList filters;
+        filters<<"*.htm";
+        listSources = new QStringList(dirSource.entryList(filters));
 
-    //모델을 생성하여 listView와 연결한다.
-    modelFiles = new QStringListModel(this);
-    modelFiles->setStringList(*listSources);
-    listViewFiles->setModel(modelFiles);
-    listViewFiles->setEditTriggers(QAbstractItemView::NoEditTriggers);
+        //모델을 생성하여 listView와 연결한다.
+        modelFiles = new QStringListModel(this);
+        modelFiles->setStringList(*listSources);
+        listViewFiles->setModel(modelFiles);
+        listViewFiles->setEditTriggers(QAbstractItemView::NoEditTriggers);
+    }
+    progressbarFiles->hide();
 }
 
 //2.파일을 하나 열어 그 내용을 읽는다.
@@ -321,7 +326,7 @@ void CyDictEditor::on_pushButtonSave_clicked()
        targetFile.close();
 }
 
-//5: 모든 파일내용을 한개의 리스트로 옮긴다.(merge)
+//5: 모든 파일내용을 한개의 리스트로 옮긴다.(merge)[ProgressBar를 위해 processEvents() 이용함]
 void CyDictEditor::on_pushButtonMerge_clicked()
 {
     plainTextEditContent->clear();
@@ -331,218 +336,269 @@ void CyDictEditor::on_pushButtonMerge_clicked()
     QStringListIterator itorFiles(*listSources); //파일의 리스트 작성
     stringHtml = new QString();
     strlstHtmls = new QStringList();
+
+    //ProgressDialog를 생성함
+    QProgressDialog progressDialog(this);
+    progressDialog.setCancelButtonText(tr("&Cancel"));
+    progressDialog.setRange(0, listSources->size());
+    progressDialog.setWindowTitle(tr("Merge Files"));
+    int i = 0; //진행중인 파일의 번호
+
     while(itorFiles.hasNext()){ //리스트를 순환하면서
-         sourceFile.setFileName(itorFiles.next());
-       if(sourceFile.open(QIODevice::ReadOnly|QIODevice::Text)){
+        //ProgressDialog를 작동시킴
+        progressDialog.setValue(++i);
+        progressDialog.setLabelText(tr("Merging file number %1 of %n...", 0, listSources->size()).arg(i));
+        QCoreApplication::processEvents();//컴퓨터 쉬는 동안에만 잠깐씩 작업함
+        if (progressDialog.wasCanceled())//cancel버튼 눌리면 중단
+            break;
+
+        sourceFile.setFileName(itorFiles.next());
+        if(sourceFile.open(QIODevice::ReadOnly|QIODevice::Text)){
            //한글사용을 위해 fromLocal8Bit함수 사용
            *stringHtml = QString::fromLocal8Bit(sourceFile.readAll()); //파일을 읽어
            if(validateHtml(stringHtml)){ //이상 없는지 점검하고
 
                strlstHtmls->append(*stringHtml); //StringList에 담는다.
            }
-       }else{
+        }else{
            //파일 열기에 실패하면 표시하는 메시지
            QMessageBox *msgBox = new QMessageBox();
            msgBox->setWindowTitle(tr("Warning!!"));
            msgBox->setText(tr("The file can't be opened. Please check if it is in the right folder"));
            msgBox->show();
            return;
-       }
-       sourceFile.flush();
-       sourceFile.close();
+        }
+        sourceFile.flush();
+        sourceFile.close();
     }
     QMessageBox::information(this, "Succeeded!!!", QString("Total %1 files are successfully merged.").arg(strlstHtmls->length()), "Cofirm");
     plainTextEditContent->setPlainText(QString("Total %1 files are successfully merged.").arg(strlstHtmls->length()));
     plainTextEditDefinition->setPlainText(QString("Total %1 files are successfully merged.").arg(strlstHtmls->length()));
 }
 
-//6: title과 body문을 추출한다.
+//6: title과 body문을 추출한다.[ProgressBar를 위해 QFutureWatcher를 이용함]
 void CyDictEditor::on_pushButtonSplit_clicked()
 {
     plainTextEditContent->clear();
     plainTextEditDefinition->clear();
     listViewWordFromMap->clearSelection();
-    //html들이 담겨있는 리스트 strlstHtmls를 순환하면서 QXmlReader로 분석
-    QStringListIterator itorHtmls(*strlstHtmls);
-    counterWord = 0;
-    while(itorHtmls.hasNext()){
-        ++counterWord;
-        splitHtml(itorHtmls.next());
-    }
 
+    mltmapTitles = new QMultiMap<QString, int>;
+    mapDefinitions = new QMap<int, QString>;
+
+    //ProgressDialog를 생성함
+    QProgressDialog progressDialog(this);
+    progressDialog.setCancelButtonText(tr("&Cancel"));
+    progressDialog.setRange(0, listSources->size());
+    progressDialog.setWindowTitle(tr("Merge Files"));
+
+    //오래 걸리는 프로세스의 진행단계를 감시하여 progressbar에 신호를 주는 QFutureWatcher
+    QFutureWatcher<void> futureWatcher;
+
+    QObject::connect(&futureWatcher, SIGNAL(finished()), &progressDialog, SLOT(reset()));
+    QObject::connect(&futureWatcher, SIGNAL(finished()), this, SLOT(showTitles()));
+    QObject::connect(&progressDialog, SIGNAL(canceled()), &futureWatcher, SLOT(cancel()));
+    QObject::connect(&futureWatcher, SIGNAL(progressRangeChanged(int,int)), &progressDialog, SLOT(setRange(int,int)));
+    QObject::connect(&futureWatcher, SIGNAL(progressValueChanged(int)), &progressDialog, SLOT(setValue(int)));
+
+
+    //-html들이 담겨있는 리스트 strlstHtmls를 순환하면서 QXmlStreamReader로 분석
+    //-멤버함수는 람다함수를  사용해  지정함
+
+    // 현재 처리중인 단어의 번호와 순환관리를 담당하는 순번표를 vector로 작성함
+    QVector<int> vector;
+    for (int i = 0; i < strlstHtmls->size(); ++i)
+        vector.append(i);
+    //vector에 담긴 번호마다 람다함수를 실행(다른 쓰레드로)
+    //QXmlStreamReader readerHtml;
+    futureWatcher.setFuture(QtConcurrent::map(vector, [&](int &counterWord){
+                            QString html = strlstHtmls->at(counterWord);
+                            splitHtml(html, counterWord);
+    }));
+    // Display the dialog and start the event loop.
+    progressDialog.exec();
+}
+
+//futureWatcher가 끝나면 데이터를 보여줌
+void CyDictEditor::showTitles()
+{
     //모델을 생성하여 listView와 연결한다.
     modelTitles = new QStringListModel(this);
-    modelTitles->setStringList(mltmapTitles.keys());
+    modelTitles->setStringList(this->mltmapTitles->keys());
     listViewWordFromMap->setModel(modelTitles);
     listViewWordFromMap->setEditTriggers(QAbstractItemView::NoEditTriggers);
 
-    QMessageBox::information(this, "Succeeded!!!", QString("Total %1 files are successfully processed.").arg(strlstHtmls->length()), "Cofirm");
-    plainTextEditContent->setPlainText(QString("Total %1 files are successfully processed.").arg(strlstHtmls->length()));
+    QMessageBox::information(this, "Succeeded!!!", QString("Total %1 files are successfully processed.")
+                             .arg(strlstHtmls->length()), "Cofirm");
+    plainTextEditContent->setPlainText(QString("Total %1 files are successfully processed.")
+                                       .arg(strlstHtmls->length()));
 }
 
-void CyDictEditor::splitHtml(QString text)
+void CyDictEditor::splitHtml(QString &html, int &counterWord)
 {
-    reader.clear();
-    reader.addData(text);
+    QXmlStreamReader readerHtmlDocument;
+    readerHtmlDocument.clear();
+    readerHtmlDocument.addData(html);
 
     //특수문자 처리를 위한 EntityResolver를 지정해준다.
     if (htmlNamedEntityResolver == NULL) {
         htmlNamedEntityResolver = new HtmlNamedEntityResolver();
     }
-    reader.setEntityResolver(htmlNamedEntityResolver);
+    readerHtmlDocument.setEntityResolver(htmlNamedEntityResolver);
 
     //분석 시작
-    reader.readNext();
-    while(!reader.atEnd()){
-        if(reader.isStartElement()){
-            if(reader.name() == "html"){
-                readHtmlElement();
+    readerHtmlDocument.readNext();
+    while(!readerHtmlDocument.atEnd()){
+        if(readerHtmlDocument.isStartElement()){
+            if(readerHtmlDocument.name() == "html"){
+                readHtmlElement(readerHtmlDocument, counterWord);
             }
         }else{
-            reader.readNext();
+            readerHtmlDocument.readNext();
         }//if(reader.isStartElement())
     }//while(!reader.atEnd()
 
-    //에러문 출력
-    if(reader.hasError()){
-//        QMessageBox::information(this, "Error!!!",
-//                                 QString("%1\nLine: %2\nColumn: %3\nCharacter at: %4\nToken: %5\nHtml: ...%6...")
-//                                        .arg(reader.errorString())
-//                                        .arg(reader.lineNumber())
-//                                        .arg(reader.columnNumber())
-//                                        .arg(reader.characterOffset())
-//                                        .arg(reader.tokenString())
-//                                        .arg(text.mid(reader.characterOffset()-10, 20)),
-//                                 "OK");
-        int s = text.indexOf("<title>");
-        int e = text.indexOf("</title>");
-        QString str = text.mid(s + 7, e-(s+7));
-        plainTextEditDefinition->appendPlainText(QString("Title: %1\nError: %2\nPart: %3\n").arg(str).arg(reader.errorString()).arg(text.mid(reader.characterOffset()-30, 40)));
-    }//if(reader.hasError())
+    //    //에러문 출력
+    //    if(reader.hasError()){
+    ////        QMessageBox::information(this, "Error!!!",
+    ////                                 QString("%1\nLine: %2\nColumn: %3\nCharacter at: %4\nToken: %5\nHtml: ...%6...")
+    ////                                        .arg(reader.errorString())
+    ////                                        .arg(reader.lineNumber())
+    ////                                        .arg(reader.columnNumber())
+    ////                                        .arg(reader.characterOffset())
+    ////                                        .arg(reader.tokenString())
+    ////                                        .arg(text.mid(reader.characterOffset()-10, 20)),
+    ////                                 "OK");
+    //        int s = text.indexOf("<title>");
+    //        int e = text.indexOf("</title>");
+    //        QString str = text.mid(s + 7, e-(s+7));
+    //        plainTextEditDefinition->appendPlainText(QString("Title: %1\nError: %2\nPart: %3\n").arg(str).arg(reader.errorString()).arg(text.mid(reader.characterOffset()-30, 40)));
+    //    }//if(reader.hasError())
 }
 
 //6-1:<html>태그 내부를 읽는다.
-void CyDictEditor::readHtmlElement()
+void CyDictEditor::readHtmlElement(QXmlStreamReader &readerHtml, int &counterWord)
 {
-    reader.readNext();
-    while(!reader.atEnd()){
-        if (reader.isEndElement()) {
-            reader.readNext();
+    readerHtml.readNext();
+    while(!readerHtml.atEnd()){
+        if (readerHtml.isEndElement()) {
+            readerHtml.readNext();
             break;
-        }//if (reader.isEndElement())
+        }//if (readerHtml.isEndElement())
 
-        if(reader.isStartElement()){
-            if(reader.name() == "head"){
-                readHeadElement();
-            }else if(reader.name() == "body"){
-                readBodyElement();
+        if(readerHtml.isStartElement()){
+            if(readerHtml.name() == "head"){
+                readHeadElement(readerHtml, counterWord);
+            }else if(readerHtml.name() == "body"){
+                readBodyElement(readerHtml, counterWord);
             }else{
-                skipUnknownElement();
-            }//if(reader.name() == "head"
+                skipUnknownElement(readerHtml);
+            }//if(readerHtml.name() == "head"
         }else{
-            reader.readNext();
-        }//if(reader.isStartElement())
-    }//while(!reader.atEnd())
+            readerHtml.readNext();
+        }//if(readerHtml.isStartElement())
+    }//while(!readerHtml.atEnd())
 }
 
 //6-2:<head>태그 내부를 읽는다.
-void CyDictEditor::readHeadElement()
+void CyDictEditor::readHeadElement(QXmlStreamReader &readerHead, int &counterWord)
 {
-    reader.readNext();
-    while (!reader.atEnd()) {
-        if (reader.isEndElement()) {
-            reader.readNext();
+    readerHead.readNext();
+    while (!readerHead.atEnd()) {
+        if (readerHead.isEndElement()) {
+            readerHead.readNext();
             break;
-        }//if (reader.isEndElement())
+        }//if (readerHead.isEndElement())
 
-        if (reader.isStartElement()) {
-            if (reader.name() == "title") {
-                readTitleElement();
+        if (readerHead.isStartElement()) {
+            if (readerHead.name() == "title") {
+                readTitleElement(readerHead, counterWord);
             } else {
-                skipUnknownElement();
+                skipUnknownElement(readerHead);
             }
         } else {
-            reader.readNext();
-        }//if (reader.isStartElement())
-    }//while (!reader.atEnd())
+            readerHead.readNext();
+        }//if (readerHead.isStartElement())
+    }//while (!readerHead.atEnd())
 }
 
 //6-3<title>태그를 읽는다.
-void CyDictEditor::readTitleElement()
+void CyDictEditor::readTitleElement(QXmlStreamReader &readerTitle, int &counterWord)
 {
     //readElementText()가 불려진 이후에는 EndElement로 이동하므로
     //isEndElement 조건식 이전에 readElementText()가 불려져야 한다.
-    QString title = reader.readElementText();
+    QString title = readerTitle.readElementText();
     if(title.length()>0){ //빈문자열("")은 건너뛴다.
-        mltmapTitles.insert(title, counterWord);
+        qDebug()<<title;
+        this->mltmapTitles->insert(title, counterWord);
     }
 
-    if (reader.isEndElement()){
-        reader.readNext();
+    if (readerTitle.isEndElement()){
+        readerTitle.readNext();
     }
 }
 
 //6-4: <body>태그를 읽는다.
-void CyDictEditor::readBodyElement()
+void CyDictEditor::readBodyElement(QXmlStreamReader &readerBody, int &counterWord)
 {
-    reader.readNext();
-    while (!reader.atEnd()) {
-        if (reader.isEndElement()) {
-            reader.readNext();
+    readerBody.readNext();
+    while (!readerBody.atEnd()) {
+        if (readerBody.isEndElement()) {
+            readerBody.readNext();
             break;
-        }//if (reader.isEndElement())
+        }//if (readerTitle.isEndElement())
 
-        if (reader.isStartElement()) {
-            if (reader.name() == "p") {
-                readPElement();
+        if (readerBody.isStartElement()) {
+            if (readerBody.name() == "p") {
+                readPElement(readerBody, counterWord);
             } else {
-                skipUnknownElement();
-            }//if (reader.name() == "p")
+                skipUnknownElement(readerBody);
+            }//if (readerTitle->name() == "p")
         } else {
-            reader.readNext();
-        }//if (reader.isStartElement())
+            readerBody.readNext();
+        }//if (readerTitle->isStartElement())
     }
 }
 
 //6-5: <p>태그를 읽는다.
-void CyDictEditor::readPElement()
+void CyDictEditor::readPElement(QXmlStreamReader &readerP, int &counterWord)
 {
     QString pStr;
 
-    reader.readNext();
-    while(!reader.atEnd()){
-        if(reader.tokenType() == QXmlStreamReader::Characters){
+    readerP.readNext();
+    while(!readerP.atEnd()){
+        if(readerP.tokenType() == QXmlStreamReader::Characters){
             //글자들을 읽어나가다가(단, <와 >는 &lt;와 &gt;로 남겨둠)
-            pStr += reader.text().toString().toHtmlEscaped();
-        }else if(reader.isStartElement()){
-            if(reader.name() == "p"){ // startelement을 만나고 그것이 <p>면
-                reader.readNext();
+            pStr += readerP.text().toString().toHtmlEscaped();
+        }else if(readerP.isStartElement()){
+            if(readerP.name() == "p"){ // startelement을 만나고 그것이 <p>면
+                readerP.readNext();
                 continue;
-            }else if(reader.name() == "font"){ // startelement을 만나고 그것이 <font>면
-                reader.readNextStartElement();
+            }else if(readerP.name() == "font"){ // startelement을 만나고 그것이 <font>면
+                readerP.readNextStartElement();
                 continue;
             }else{ // startElement을 만나고 그것이 <span> 또는 <u>,<sup>이면
                 // "class" attribute를 가지고 있으면 그대로 표시하고
-                if(reader.attributes().hasAttribute("class")){
-                    pStr += "<" + reader.name().toString()
+                if(readerP.attributes().hasAttribute("class")){
+                    pStr += "<" + readerP.name().toString()
                             + " class=\""
-                            + reader.attributes().value("class").toString()
+                            + readerP.attributes().value("class").toString()
                             + "\">"; //태그를 그대로 붙여준다.
                 }else{
                     //"class" attribute가 없으면 태그만 그대로 붙여준다.
-                    pStr += "<" + reader.name().toString() + ">";
+                    pStr += "<" + readerP.name().toString() + ">";
                 }
-            }//if(reader.name() == ?)
-        }else if(reader.isEndElement()){ //endelement도 마찬가지다.
-            if(reader.name() == "p" || reader.name() == "font" || reader.name() == "body" || reader.name() == "html"){
-                reader.readNext();
+            }//if(readerP.name() == ?)
+        }else if(readerP.isEndElement()){ //endelement도 마찬가지다.
+            if(readerP.name() == "p" || readerP.name() == "font" || readerP.name() == "body" || readerP.name() == "html"){
+                readerP.readNext();
                 continue;
             }else{
-                pStr += "</"+ reader.name().toString() + ">";
-            }//if(reader.name() == ?)
-        }//else if(reader.isEndElement())
-        reader.readNext();
-    }//while(!reader.atEnd())
+                pStr += "</"+ readerP.name().toString() + ">";
+            }//if(readerP.name() == ?)
+        }//else if(readerP.isEndElement())
+        readerP.readNext();
+    }//while(!readerP.atEnd())
 
     //타이틀 추출하여 움라우트를 가지고 있으면
     QString titleUml;
@@ -565,13 +621,15 @@ void CyDictEditor::readPElement()
     //umlaut를 가지고 있는지 검사
     while(itor.hasNext()){
         if(titleUml.contains(itor.next().toUtf8().constData())){
-            mltmapTitles.insert(titleUml, counterWord);
+            this->mltmapTitles->insert(titleUml, counterWord);
             break;
         }
     }//while(itor.hasNext())
 
     //전체 body문을 출력한다.
-    mapDefinitions.insert(counterWord, pStr.trimmed());
+    mapDefinitions->insert(counterWord, pStr.trimmed());
+//reader.clear();
+//delete &reader;
 
 // 태그를 무시하고 내용만 읽어내는 코드
 //    plainTextEditDefinition->appendPlainText(reader.readElementText(QXmlStreamReader::IncludeChildElements));
@@ -581,19 +639,19 @@ void CyDictEditor::readPElement()
 }
 
 //6-6: 알려지지 않은 태그는 건너뛴다.
-void CyDictEditor::skipUnknownElement()
+void CyDictEditor::skipUnknownElement(QXmlStreamReader &readerUnknown)
 {
-    reader.readNext();
-    while (!reader.atEnd()) {
-        if (reader.isEndElement()) {
-            reader.readNext();
+    readerUnknown.readNext();
+    while (!readerUnknown.atEnd()) {
+        if (readerUnknown.isEndElement()) {
+            readerUnknown.readNext();
             break;
         }
 
-        if (reader.isStartElement()) {
-            skipUnknownElement();
+        if (readerUnknown.isStartElement()) {
+            skipUnknownElement(readerUnknown);
         } else {
-            reader.readNext();
+            readerUnknown.readNext();
         }
     }
 }
@@ -604,10 +662,10 @@ void CyDictEditor::on_listViewWordFromMap_clicked(const QModelIndex &index)
     lineEditWord->clear();
     lineEditWord->insert(word);
     plainTextEditDefinition->clear();
-    QList<int> words = mltmapTitles.values(word);
+    QList<int> words = this->mltmapTitles->values(word);
     QListIterator<int> id(words);
     while(id.hasNext()){
-        plainTextEditDefinition->appendHtml(mapDefinitions.value(id.next()));
+        plainTextEditDefinition->appendHtml(mapDefinitions->value(id.next()));
     }
 }
 
@@ -656,14 +714,14 @@ void CyDictEditor::createDict(QString &dictionaryName)
     uint32_t tmp = 0;
     if(targetDefinition.open(QFile::WriteOnly|QFile::Text)){
         if(outToTitle.device()->open(QFile::WriteOnly)){
-            QMapIterator<int, QString> defsItor(mapDefinitions);
+            QMapIterator<int, QString> defsItor(*mapDefinitions);
             while(defsItor.hasNext()){
                 defsItor.next();
                 //본문파일의 스트림(outToContent)에 본문을 써 넣는다.
                 targetDefinition.write(defsItor.value().toUtf8());
 
                 //본문의 일련번호에 해당하는 표제어들을 찾아 순환하면서 스트림(outToTitle)에 써 넣는다.
-                QListIterator<QString> wordsItor(mltmapTitles.keys(defsItor.key()));
+                QListIterator<QString> wordsItor(this->mltmapTitles->keys(defsItor.key()));
                 while(wordsItor.hasNext()){
                     QString txt = wordsItor.next();
                     //인덱스파일의 스트림(outToTitle)에 본문파일의 스트림(outToContent)의 파일포인터,
@@ -704,7 +762,7 @@ void CyDictEditor::createDict(QString &dictionaryName)
     if(outToIfo.device()->open(QFile::WriteOnly|QFile::Text)){
         outToIfo << QString("%1's dict ifo file").arg("StarDict") << "\n"
                  << QString("version=%1").arg("2.4.2") << "\n"
-                 << QString("wordcount=%1").arg(mltmapTitles.keys().count()) << "\n"
+                 << QString("wordcount=%1").arg(this->mltmapTitles->keys().count()) << "\n"
                  << QString("idxfilesize=%1").arg(targetTitle.size()) << "\n"
                  << QString("bookname=%1").arg(dictionaryName) << "\n"
                  << QString("sametypesequence=%1").arg("h");
@@ -712,7 +770,7 @@ void CyDictEditor::createDict(QString &dictionaryName)
     }
 //    //Ifo파일 작성
 //    FILE *ifoFile = fopen(dirSource.absoluteFilePath(dictionaryName + ".ifo").toLatin1(), "w+");
-//fprintf(ifoFile, "StarDict's dict ifo file\nversion=2.4.2\nwordcount=%d\nidxfilesize=%ld\nbookname=SKKU\nsametypesequence=h\n",mltmapTitles.keys().count(),(long)targetTitle.size());
+//fprintf(ifoFile, "StarDict's dict ifo file\nversion=2.4.2\nwordcount=%d\nidxfilesize=%ld\nbookname=SKKU\nsametypesequence=h\n",this.mltmapTitles->keys().count(),(long)targetTitle.size());
 
 
     targetTitle.flush();
@@ -832,7 +890,7 @@ void CyDictEditor::on_pushButton_clicked()
     uint32_t pos =0;
     uint32_t tmpglong = 0;
 
-    QMapIterator<int, QString> defsItor(mapDefinitions);
+    QMapIterator<int, QString> defsItor(*mapDefinitions);
     while(defsItor.hasNext()){
         defsItor.next();
         pos = ftell(targetDefinition);
@@ -841,7 +899,7 @@ void CyDictEditor::on_pushButton_clicked()
 
 
         //본문의 일련번호에 해당하는 표제어들을 찾아 순환하면서 스트림(outToTitle)에 써 넣는다.
-        QListIterator<QString> wordsItor(mltmapTitles.keys(defsItor.key()));
+        QListIterator<QString> wordsItor(this->mltmapTitles->keys(defsItor.key()));
         while(wordsItor.hasNext()){
             QString txt = wordsItor.next().trimmed();
 
@@ -863,7 +921,7 @@ void CyDictEditor::on_pushButton_clicked()
     stat(dirSource.absoluteFilePath(dictionaryName + ".idx").toStdString().c_str(), &info);
 
     //Ifo파일 작성
-    fprintf(targetIfo, "StarDict's dict ifo file\nversion=2.4.2\nwordcount=%d\nidxfilesize=%ld\nbookname=SKKUD\nsametypesequence=h\n",mltmapTitles.keys().count(), &info.st_size);
+    fprintf(targetIfo, "StarDict's dict ifo file\nversion=2.4.2\nwordcount=%d\nidxfilesize=%ld\nbookname=SKKUD\nsametypesequence=h\n",this->mltmapTitles->keys().count(), &info.st_size);
 
     fclose(targetIfo);
 

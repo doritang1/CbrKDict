@@ -271,6 +271,7 @@ Makefile: CbrKDict.pro ..\..\Qt\5.9.1\msvc2017_64\mkspecs\win32-msvc\qmake.conf 
 		..\..\Qt\5.9.1\msvc2017_64\lib\Qt5Qml.prl \
 		..\..\Qt\5.9.1\msvc2017_64\lib\Qt5Network.prl \
 		..\..\Qt\5.9.1\msvc2017_64\lib\Qt5Positioning.prl \
+		..\..\Qt\5.9.1\msvc2017_64\lib\Qt5Concurrent.prl \
 		..\..\Qt\5.9.1\msvc2017_64\lib\Qt5Script.prl \
 		..\..\Qt\5.9.1\msvc2017_64\lib\Qt5Core.prl
 	$(QMAKE) -o Makefile CbrKDict.pro -spec win32-msvc "CONFIG+=debug" "CONFIG+=qml_debug"
@@ -470,6 +471,7 @@ CbrKDict.pro:
 ..\..\Qt\5.9.1\msvc2017_64\lib\Qt5Qml.prl:
 ..\..\Qt\5.9.1\msvc2017_64\lib\Qt5Network.prl:
 ..\..\Qt\5.9.1\msvc2017_64\lib\Qt5Positioning.prl:
+..\..\Qt\5.9.1\msvc2017_64\lib\Qt5Concurrent.prl:
 ..\..\Qt\5.9.1\msvc2017_64\lib\Qt5Script.prl:
 ..\..\Qt\5.9.1\msvc2017_64\lib\Qt5Core.prl:
 qmake: FORCE

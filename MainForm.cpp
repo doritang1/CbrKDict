@@ -264,6 +264,11 @@ void MainForm::createContentPanel()
                 this, SLOT(contentFromTableModel(QModelIndex)));
         //contentTableView->show();
     }
+    //일정관리 DateEdit의 생성
+    {
+        todayDateEdit = new QDateEdit();
+        scheduleDateEdit = new QDateEdit();
+    }
     //Content 조작버튼의 생성
     {
         addContentButton = new QPushButton(tr("Add"));
@@ -301,6 +306,8 @@ void MainForm::createContentPanel()
         previewHBoxLayout->addWidget(splitPreviewTable);
 
         contentPanelLayout->addLayout(previewHBoxLayout);
+        contentPanelLayout->addWidget(todayDateEdit);
+        contentPanelLayout->addWidget(scheduleDateEdit);
         contentPanelLayout->addWidget(contentDialogButtonBox);
         //only the previewHBoxLayout stretches
         contentPanelLayout->setStretch(1,1);

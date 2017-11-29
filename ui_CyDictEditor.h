@@ -20,6 +20,7 @@
 #include <QtWidgets/QLineEdit>
 #include <QtWidgets/QListView>
 #include <QtWidgets/QPlainTextEdit>
+#include <QtWidgets/QProgressBar>
 #include <QtWidgets/QPushButton>
 #include <QtWidgets/QToolButton>
 #include <QtWidgets/QVBoxLayout>
@@ -61,12 +62,13 @@ public:
     QPushButton *pushButtonCreateDict;
     QPushButton *pushButton;
     QLabel *label_3;
+    QProgressBar *progressbarFiles;
 
     void setupUi(QDialog *CyDictEditor)
     {
         if (CyDictEditor->objectName().isEmpty())
             CyDictEditor->setObjectName(QStringLiteral("CyDictEditor"));
-        CyDictEditor->resize(1139, 568);
+        CyDictEditor->resize(1139, 592);
         layoutWidget = new QWidget(CyDictEditor);
         layoutWidget->setObjectName(QStringLiteral("layoutWidget"));
         layoutWidget->setGeometry(QRect(11, 10, 260, 551));
@@ -226,6 +228,11 @@ public:
 
         verticalLayout_6->addWidget(label_3);
 
+        progressbarFiles = new QProgressBar(CyDictEditor);
+        progressbarFiles->setObjectName(QStringLiteral("progressbarFiles"));
+        progressbarFiles->setGeometry(QRect(10, 560, 261, 23));
+        progressbarFiles->setValue(0);
+        progressbarFiles->setTextVisible(false);
 
         retranslateUi(CyDictEditor);
 

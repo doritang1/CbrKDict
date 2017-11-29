@@ -4,7 +4,7 @@
 #
 #-------------------------------------------------
 
-QT       += sql core gui xml printsupport webenginewidgets
+QT       += sql core gui xml printsupport webenginewidgets concurrent
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 

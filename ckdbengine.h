@@ -27,6 +27,8 @@ public:
     QDataWidgetMapper *mapperContent;
     QSqlTableModel *modelReport;
 
+    //tasks 테이블의 데이터를 제공하는 모델
+    QSqlTableModel *modelTask;
 private:
     //DB객체
     QSqlDatabase db;
