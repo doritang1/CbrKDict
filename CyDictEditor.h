@@ -4,15 +4,15 @@
 #include <QDialog>
 #include <QDir>
 #include <QStringListModel>
-#include <QtXml>
 #include <QMultiMap>
 #include <QMap>
-#include <htmlnamedentityresolver.h>
 #include "ui_CyDictEditor.h"
-
 #include <stdint.h>
 #include <QProgressDialog>
+<<<<<<< HEAD
+=======
 
+>>>>>>> e9210c6c87dcc155fa15d2179bd5fd64809c5b95
 #include <QtConcurrent>
 #include <QFutureWatcher> //progressbar를 비동기적으로 사용
 
@@ -33,7 +33,6 @@ class CyDictEditor : public QDialog, public Ui::CyDictEditor
 
 public:
     explicit CyDictEditor(QWidget *parent = 0);
-    HtmlNamedEntityResolver *htmlNamedEntityResolver = NULL;
 
 private slots:
     void on_toolButtonFileSelect_clicked();
@@ -47,6 +46,11 @@ private slots:
     void on_listViewWordFromFile_clicked(const QModelIndex &index);
 
     void on_pushButton_clicked();
+    void showTitles();
+
+    void receiveTitle(QString, int);
+    void receiveBody(int, QString);
+    void receiveError(QString);
 
 private:
     Ui::CyDictEditor *ui;
@@ -66,23 +70,17 @@ private:
     QMultiMap<QString, _position> mltmapWords;
     QString strFileName;
 
-    QXmlStreamReader reader;
-    int counterWord;
-
-    void readHtmlElement();
-    void readHeadElement();
-    void readTitleElement();
-    void readBodyElement();
-    void readPElement();
-    void skipUnknownElement();
-
     bool validateHtml(QString *);
+<<<<<<< HEAD
+=======
 
     void splitHtml(QString);
+>>>>>>> e9210c6c87dcc155fa15d2179bd5fd64809c5b95
 
     void createDict(QString &dictionaryName);
     void loadDict(QString &strFilePath);
     void loadDictD(QString &strFilePath);
+
 };
 
 #endif // CYDICTEDITOR_H

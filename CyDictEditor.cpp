@@ -1,6 +1,7 @@
-#include <winsock2.h>
+﻿#include <winsock2.h>
 #include "CyDictEditor.h"
 #include "ui_CyDictEditor.h"
+#include "SplitParser.h"
 #include <QDialog>
 #include <QFileDialog>
 #include <QMessageBox>
@@ -8,9 +9,8 @@
 #include <QMultiMap>
 #include <stdio.h> //FILE
 #include <winsock.h> //htonl, ntohl함수
-
 #include <QtEndian>
-
+#include "SplitParser.h"
 #include <sys/types.h>
 #include <sys/stat.h> //stat()함수
 
@@ -352,8 +352,13 @@ void CyDictEditor::on_pushButtonMerge_clicked()
         if (progressDialog.wasCanceled())//cancel버튼 눌리면 중단
             break;
 
+<<<<<<< HEAD
+         sourceFile.setFileName(itorFiles.next());
+       if(sourceFile.open(QIODevice::ReadOnly|QIODevice::Text)){
+=======
         sourceFile.setFileName(itorFiles.next());
         if(sourceFile.open(QIODevice::ReadOnly|QIODevice::Text)){
+>>>>>>> e9210c6c87dcc155fa15d2179bd5fd64809c5b95
            //한글사용을 위해 fromLocal8Bit함수 사용
            *stringHtml = QString::fromLocal8Bit(sourceFile.readAll()); //파일을 읽어
            if(validateHtml(stringHtml)){ //이상 없는지 점검하고
@@ -382,14 +387,40 @@ void CyDictEditor::on_pushButtonSplit_clicked()
     plainTextEditContent->clear();
     plainTextEditDefinition->clear();
     listViewWordFromMap->clearSelection();
-    //html들이 담겨있는 리스트 strlstHtmls를 순환하면서 QXmlReader로 분석
-    QStringListIterator itorHtmls(*strlstHtmls);
-    counterWord = 0;
-    while(itorHtmls.hasNext()){
-        ++counterWord;
-        splitHtml(itorHtmls.next());
-    }
 
+<<<<<<< HEAD
+    // Prepare the vector.
+    QVector<int> vector;
+    for (int i = 0; i < strlstHtmls->count(); ++i){
+        vector.append(i);
+    }
+    //ProgressDialog를 생성함
+    QProgressDialog progressDialog(this);
+    progressDialog.setCancelButtonText(tr("&Cancel"));
+    progressDialog.setRange(0, listSources->size());
+    progressDialog.setWindowTitle(tr("Merge Files"));
+
+    QFutureWatcher<void> futureWatcher; //오래 걸리는 프로세스의 진행단계를 감시하여 progressbar에 신호를 줌
+
+    QObject::connect(&futureWatcher, SIGNAL(finished()), &progressDialog, SLOT(reset()));
+    QObject::connect(&futureWatcher, SIGNAL(finished()), this, SLOT(showTitles()));
+    QObject::connect(&progressDialog, SIGNAL(canceled()), &futureWatcher, SLOT(cancel()));
+    QObject::connect(&futureWatcher, SIGNAL(progressRangeChanged(int,int)), &progressDialog, SLOT(setRange(int,int)));
+    QObject::connect(&futureWatcher, SIGNAL(progressValueChanged(int)), &progressDialog, SLOT(setValue(int)));
+
+
+    //-html들이 담겨있는 리스트 strlstHtmls를 순환하면서 QXmlReader로 분석
+    //-멤버함수는 람다함수를  사용해  지정함
+    futureWatcher.setFuture(QtConcurrent::map(vector, [this](int counterWord)
+        {SplitParser parser;
+        connect(&parser, SIGNAL(sendTitle(QString, int)), this, SLOT(receiveTitle(QString, int)));
+        connect(&parser, SIGNAL(sendBody(int, QString)), this, SLOT(receiveBody(int, QString)));
+        connect(&parser, SIGNAL(sendError(QString)), this, SLOT(receiveError(QString)));
+        parser.splitHtml(this->strlstHtmls->at(counterWord), counterWord);}));
+    // Display the dialog and start the event loop.
+    progressDialog.exec();
+    futureWatcher.waitForFinished();
+=======
     //모델을 생성하여 listView와 연결한다.
     modelTitles = new QStringListModel(this);
     modelTitles->setStringList(mltmapTitles.keys());
@@ -463,11 +494,14 @@ void CyDictEditor::readHtmlElement()
             reader.readNext();
         }//if(reader.isStartElement())
     }//while(!reader.atEnd())
+>>>>>>> e9210c6c87dcc155fa15d2179bd5fd64809c5b95
 }
 
-//6-2:<head>태그 내부를 읽는다.
-void CyDictEditor::readHeadElement()
+void CyDictEditor::receiveTitle(QString title, int counterWord)
 {
+<<<<<<< HEAD
+    this->mltmapTitles.insert(title, counterWord);
+=======
     reader.readNext();
     while (!reader.atEnd()) {
         if (reader.isEndElement()) {
@@ -485,11 +519,14 @@ void CyDictEditor::readHeadElement()
             reader.readNext();
         }//if (readerHead.isStartElement())
     }//while (!readerHead.atEnd())
+>>>>>>> e9210c6c87dcc155fa15d2179bd5fd64809c5b95
 }
 
-//6-3<title>태그를 읽는다.
-void CyDictEditor::readTitleElement()
+void CyDictEditor::receiveBody(int counterWord, QString body)
 {
+<<<<<<< HEAD
+    this->mapDefinitions.insert(counterWord, body);
+=======
     //readElementText()가 불려진 이후에는 EndElement로 이동하므로
     //isEndElement 조건식 이전에 readElementText()가 불려져야 한다.
     QString title = reader.readElementText();
@@ -501,11 +538,14 @@ void CyDictEditor::readTitleElement()
     if (reader.isEndElement()){
         reader.readNext();
     }
+>>>>>>> e9210c6c87dcc155fa15d2179bd5fd64809c5b95
 }
 
-//6-4: <body>태그를 읽는다.
-void CyDictEditor::readBodyElement()
+void CyDictEditor::receiveError(QString errMessage)
 {
+<<<<<<< HEAD
+    this->plainTextEditDefinition->appendPlainText(errMessage);
+=======
     reader.readNext();
     while (!reader.atEnd()) {
         if (reader.isEndElement()) {
@@ -601,36 +641,40 @@ void CyDictEditor::readPElement()
 //    if (reader.isEndElement()){
 //        reader.readNext();
 //    }
+>>>>>>> e9210c6c87dcc155fa15d2179bd5fd64809c5b95
 }
 
-//6-6: 알려지지 않은 태그는 건너뛴다.
-void CyDictEditor::skipUnknownElement()
+void CyDictEditor::showTitles()//futureWatcher가 끝나면 데이터를 보여줌
 {
-    reader.readNext();
-    while (!reader.atEnd()) {
-        if (reader.isEndElement()) {
-            reader.readNext();
-            break;
-        }
+	//모델을 생성하여 listView와 연결한다.
+	modelTitles = new QStringListModel(this);
+	modelTitles->setStringList(this->mltmapTitles.keys());
+	listViewWordFromMap->setModel(modelTitles);
+	listViewWordFromMap->setEditTriggers(QAbstractItemView::NoEditTriggers);
 
-        if (reader.isStartElement()) {
-            skipUnknownElement();
-        } else {
-            reader.readNext();
-        }
-    }
+	QMessageBox::information(this, "Succeeded!!!", QString("Total %1 files are successfully processed.")
+		.arg(strlstHtmls->length()), "Cofirm");
+	plainTextEditContent->setPlainText(QString("Total %1 files are successfully processed.")
+		.arg(strlstHtmls->length()));
 }
 
 void CyDictEditor::on_listViewWordFromMap_clicked(const QModelIndex &index)
 {
-    QString word = index.data(Qt::DisplayRole).toString();
+    QString title = index.data(Qt::DisplayRole).toString();
     lineEditWord->clear();
-    lineEditWord->insert(word);
+    lineEditWord->insert(title);
     plainTextEditDefinition->clear();
+<<<<<<< HEAD
+    QList<int> titleNums = this->mltmapTitles.values(title);
+    QListIterator<int> titleNum(titleNums);
+    while(titleNum.hasNext()){
+        plainTextEditDefinition->appendHtml(mapDefinitions.value(titleNum.next()));
+=======
     QList<int> words = this->mltmapTitles.values(word);
     QListIterator<int> id(words);
     while(id.hasNext()){
         plainTextEditDefinition->appendHtml(mapDefinitions.value(id.next()));
+>>>>>>> e9210c6c87dcc155fa15d2179bd5fd64809c5b95
     }
 }
 
@@ -735,7 +779,11 @@ void CyDictEditor::createDict(QString &dictionaryName)
     }
 //    //Ifo파일 작성
 //    FILE *ifoFile = fopen(dirSource.absoluteFilePath(dictionaryName + ".ifo").toLatin1(), "w+");
+<<<<<<< HEAD
+//fprintf(ifoFile, "StarDict's dict ifo file\nversion=2.4.2\nwordcount=%d\nidxfilesize=%ld\nbookname=SKKU\nsametypesequence=h\n",this.mltmapTitles.keys().count(),(long)targetTitle.size());
+=======
 //fprintf(ifoFile, "StarDict's dict ifo file\nversion=2.4.2\nwordcount=%d\nidxfilesize=%ld\nbookname=SKKU\nsametypesequence=h\n",this.mltmapTitles->keys().count(),(long)targetTitle.size());
+>>>>>>> e9210c6c87dcc155fa15d2179bd5fd64809c5b95
 
 
     targetTitle.flush();

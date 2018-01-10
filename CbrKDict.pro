@@ -17,12 +17,14 @@ SOURCES += main.cpp\
         ckdbengine.cpp \
         document.cpp \
         CyDictEditor.cpp \
-        htmlnamedentityresolver.cpp
+        htmlnamedentityresolver.cpp \
+    SplitParser.cpp
 HEADERS += MainForm.h\
         ckdbengine.h \
         document.h \
         CyDictEditor.h \
-        htmlnamedentityresolver.h
+        htmlnamedentityresolver.h \
+    SplitParser.h
 
 FORMS   += CyDictEditor.ui
 
